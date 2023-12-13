@@ -14,9 +14,6 @@ async function connectToMongoDB() {
 	} catch (e) {
 		console.error("Error connecting to MongoDB:", e);
 		throw e; // Rethrow the error after logging
-	} finally {
-		// Close the connection in a finally block
-		if (conn) await conn.close();
 	}
 }
 
