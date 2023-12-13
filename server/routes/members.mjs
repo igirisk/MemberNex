@@ -4,16 +4,28 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
+const successResponse = (message, data = null) => {
+	return { success: true, message, data };
+};
+
+const errorResponse = (message, details = null) => {
+	return { success: false, error: message, details };
+};
+
 // get list of all members info
 router.get("/", async (req, res) => {
 	try {
 		const collection = await db.collection("members");
-		let results = await collection.find({}).toArray();
+		let result = await collection.find({}).toArray();
 
-		res.status(200).send(results);
+		if (result.length !== 0) {
+			res.status(200).send(successResponse("Members retrieved", result));
+		} else {
+			res.status(404).send(errorResponse("There is currently no members"));
+		}
 	} catch (e) {
 		console.error("Error fetching all members info:", e);
-		res.status(500).send("Internal Server Error");
+		res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -22,16 +34,16 @@ router.get("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");
-		let results = await collection.findOne(query);
+		let result = await collection.findOne(query);
 
-		if (!results) {
-			res.status(404).send("Member not found");
+		if (result) {
+			res.status(200).send(successResponse("Member retrieved", result));
 		} else {
-			res.status(200).send(results);
+			res.status(404).send(errorResponse("Member not found"));
 		}
 	} catch (e) {
 		console.error("Error fetching member by ID:", e);
-		res.status(500).send("Internal Server Error");
+		res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -49,10 +61,12 @@ router.post("/", async (req, res) => {
 			activeness: req.body.activeness,
 			request: true,
 		};
+		//need to do vaildation here. and confrim password
 
 		const collection = await db.collection("members");
 		let result = await collection.insertOne(newMember);
-		res.status(200).send(result);
+
+		res.status(200).send(successResponse("Member created", result));
 	} catch (e) {
 		console.error("Error creating new member:", e);
 		res.status(500).send("Internal Server Error");
@@ -76,13 +90,31 @@ router.patch("/:id", async (req, res) => {
 			},
 		};
 
+		// add confirm password
+		// add form fields vaildation
+
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");
 		let result = await collection.updateOne(query, updates);
-		res.status(200).send(result);
+
+		if (result.matchedCount === 1) {
+			if (result.modifiedCount === 1) {
+				res
+					.status(200)
+					.send(successResponse(`${req.params.id} Member is updated`, result));
+			} else {
+				res.status(200).send(successResponse(`Member is up to date`, result));
+			}
+		} else {
+			res
+				.status(404)
+				.send(
+					errorResponse("Member not found. Failed to update member", result)
+				);
+		}
 	} catch (e) {
 		console.error("Error updating member info:", e);
-		res.status(500).send("Internal Server Error");
+		res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -93,14 +125,14 @@ router.delete("/:id", async (req, res) => {
 		const collection = await db.collection("members");
 		let result = await collection.deleteOne(query);
 
-		if (!result) {
-			res.status(404).send("Member not found");
+		if (result.deletedCount !== 0) {
+			res.status(200).send(successResponse("Member deleted", result));
 		} else {
-			res.status(200).send(result);
+			res.status(404).send(errorResponse("Failed to delete member", result));
 		}
 	} catch (e) {
 		console.error("Error deleting member by ID:", e);
-		res.status(500).send("Internal Server Error");
+		res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
