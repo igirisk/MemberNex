@@ -6,19 +6,17 @@ import Button from "react-bootstrap/Button";
 import { Search } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 
-const Header = () => {
+const MyNavbar = () => {
 	return (
 		<Navbar expand="lg" className="bg-body-tertiary mb-3">
 			<Container>
-				<NavLink className="navbar-brand" to="/home">
+				<NavLink className="navbar-brand d-flex align-items-center" to="/home">
 					<img
 						alt=""
-						src="/images/Logo.png"
-						width="30"
-						height="30"
+						src="./imgs/logo.png"
+						width="200"
 						className="d-inline-block align-top"
 					/>
-					{"MemberNex"}
 				</NavLink>
 				<Form className="d-flex">
 					<Form.Control type="text" placeholder="Search" />
@@ -30,11 +28,18 @@ const Header = () => {
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="me-auto"></Nav>
 					<Nav>
-						<Nav.Link href="#events">Events</Nav.Link>
-						<Nav.Link href="#members">Members</Nav.Link>
-						<Nav.Link href="#login" className="bg-danger text-white rounded">
+						<NavLink className="nav-link" to="">
+							Events
+						</NavLink>
+						<NavLink className="nav-link" to="">
+							Members
+						</NavLink>
+						<NavLink
+							className="nav-link bg-danger text-white rounded"
+							to="/addMember"
+						>
 							Logout
-						</Nav.Link>
+						</NavLink>
 					</Nav>
 				</Navbar.Collapse>
 			</Container>
@@ -42,4 +47,4 @@ const Header = () => {
 	);
 };
 
-export default Header;
+export default MyNavbar;
