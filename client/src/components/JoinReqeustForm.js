@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/esm/Container";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
-const AddMemberForm = () => {
+const JoinReqeustForm = () => {
 	const [form, setForm] = useState({
 		first_name: "",
 		last_name: "",
@@ -16,51 +18,69 @@ const AddMemberForm = () => {
 		activeness: "",
 	});
 
-	// update form state properties
+	const [validated, setValidated] = useState(false);
+
 	function updateForm(value) {
 		return setForm((prev) => {
 			return { ...prev, ...value };
 		});
 	}
 
-	async function onSubmit(e) {
+	async function sendJoinRequest(e) {
 		e.preventDefault();
 
-		// post request to add a new member
-		const newMember = { ...form };
-		console.log(newMember);
+		const formElement = e.currentTarget;
 
-		await fetch("http://localhost:3050/member", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(newMember),
-		}).catch((error) => {
-			window.alert(error);
-			return;
-		});
+		// Check if the form is valid
+		if (formElement.checkValidity()) {
+			// post request to add a new member
+			const newJoinRequest = { ...form };
+			console.log(newJoinRequest);
 
-		setForm({
-			first_name: "",
-			last_name: "",
-			email: "",
-			contact_number: "",
-			matrix_number: "",
-			study_year: "",
-			activeness: "",
-		});
+			try {
+				const response = await fetch("http://localhost:3050/joinRequest", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(newJoinRequest),
+				});
+
+				if (response.ok) {
+					// Show success notification
+					toast.success("Join request submitted successfully!", {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+
+					// Reset form and activate validation after submission
+					setForm({
+						first_name: "",
+						last_name: "",
+						email: "",
+						contact_number: "",
+						matrix_number: "",
+						study_year: "",
+						activeness: "",
+					});
+					setValidated(true);
+				} else {
+					// Handle unsuccessful response
+					// You might want to extract and display more details about the error
+					const errorMessage = await response.text(); // or response.json() depending on the server response
+					window.alert(`Failed to submit join request. ${errorMessage}`);
+				}
+			} catch (error) {
+				// Handle network errors or other exceptions
+				window.alert(`An error occurred: ${error.message}`);
+			}
+		} else {
+			// If form is invalid, prevent submission and show error message
+			e.preventDefault();
+			e.stopPropagation();
+		}
 	}
 
-	// form vaildations
-	const [validated, setValidated] = useState(false);
-
-	const handleSubmit = (event) => {
-		const formElement = event.currentTarget;
-		if (formElement.checkValidity() === false) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
-
-		setValidated(true);
+	const isValidName = (name) => {
+		// Check if the name is not empty
+		return name.trim() !== "";
 	};
 
 	function isValidEmail(email) {
@@ -112,20 +132,30 @@ const AddMemberForm = () => {
 				<p className="muted">
 					Sent a request to join ITSC. Ensure your details provided are valid.
 				</p>
-				<Form
-					noValidate
-					validated={validated}
-					onSubmit={(handleSubmit, onSubmit)}
-				>
+				<Form noValidate onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom01">
 							<Form.Label>First name:</Form.Label>
-							<Form.Control required type="text" placeholder="First name" />
+							<Form.Control
+								type="text"
+								placeholder="First name"
+								required
+								isInvalid={!isValidName(form.first_name)}
+								value={form.first_name}
+								onChange={(e) => updateForm({ first_name: e.target.value })}
+							/>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 						<Form.Group as={Col} md="6" controlId="validationCustom02">
 							<Form.Label>Last name:</Form.Label>
-							<Form.Control required type="text" placeholder="Last name" />
+							<Form.Control
+								type="text"
+								placeholder="Last name"
+								required
+								isInvalid={!isValidName(form.last_name)}
+								value={form.last_name}
+								onChange={(e) => updateForm({ last_name: e.target.value })}
+							/>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
@@ -137,6 +167,7 @@ const AddMemberForm = () => {
 								placeholder="Email"
 								required
 								isInvalid={!isValidEmail(form.email)}
+								value={form.email}
 								onChange={(e) => updateForm({ email: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -150,6 +181,7 @@ const AddMemberForm = () => {
 								placeholder="Contact number"
 								required
 								isInvalid={!isValidContactNumber(form.contact_number)}
+								value={form.contact_number}
 								onChange={(e) => updateForm({ contact_number: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -165,6 +197,7 @@ const AddMemberForm = () => {
 								placeholder="Matrix card number"
 								required
 								isInvalid={!isValidMatrixNumber(form.matrix_number)}
+								value={form.matrix_number}
 								onChange={(e) => updateForm({ matrix_number: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -177,8 +210,10 @@ const AddMemberForm = () => {
 								id="study_year"
 								value={form.study_year}
 								required
-								isInvalid={!isValidYearOfStudy(form.matrix_number)}
-								onChange={(e) => updateForm({ study_year: e.target.value })}
+								isInvalid={!isValidYearOfStudy(form.study_year)}
+								onChange={(e) =>
+									updateForm({ study_year: parseInt(e.target.value) })
+								}
 							>
 								<option value="" disabled>
 									Select year of study
@@ -194,7 +229,7 @@ const AddMemberForm = () => {
 								id="activeness"
 								value={form.activeness}
 								required
-								isInvalid={!isValidActiveness(form.matrix_number)}
+								isInvalid={!isValidActiveness(form.activeness)}
 								onChange={(e) => updateForm({ activeness: e.target.value })}
 							>
 								<option value="" disabled>
@@ -211,8 +246,9 @@ const AddMemberForm = () => {
 					<Button type="submit">Send request</Button>
 				</Form>
 			</Container>
+			<ToastContainer />
 		</div>
 	);
 };
 
-export default AddMemberForm;
+export default JoinReqeustForm;
