@@ -4,12 +4,12 @@ import { Route, Routes } from "react-router-dom";
 import MyNavbar from "./components/MyNavbar";
 import Events from "./components/Events";
 import Members from "./components/Members";
-import Requests from "./components/Requests";
+import JoinRequests from "./components/JoinRequests";
 import JoinReqeustForm from "./components/JoinReqeustForm";
 
 function App() {
 	return (
-		<div className="App">
+		<div className="App py-5">
 			<MyNavbar />
 			<Routes>
 				<Route
@@ -18,7 +18,7 @@ function App() {
 						<>
 							<Events />
 							<Members />
-							<Requests />
+							<JoinRequests />
 						</>
 					}
 				/>

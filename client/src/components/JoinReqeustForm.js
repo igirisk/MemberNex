@@ -35,7 +35,6 @@ const JoinReqeustForm = () => {
 		if (formElement.checkValidity()) {
 			// post request to add a new member
 			const newJoinRequest = { ...form };
-			console.log(newJoinRequest);
 
 			try {
 				const response = await fetch("http://localhost:3050/joinRequest", {
@@ -43,10 +42,11 @@ const JoinReqeustForm = () => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(newJoinRequest),
 				});
+				const res = await response.json();
 
 				if (response.ok) {
 					// Show success notification
-					toast.success("Join request submitted successfully!", {
+					toast.success(`${res.message}`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 
@@ -63,9 +63,9 @@ const JoinReqeustForm = () => {
 					setValidated(true);
 				} else {
 					// Handle unsuccessful response
-					// You might want to extract and display more details about the error
-					const errorMessage = await response.text(); // or response.json() depending on the server response
-					window.alert(`Failed to submit join request. ${errorMessage}`);
+					window.alert(
+						`Failed to submit join request. ${res.error}. Details: ${res.details}`
+					);
 				}
 			} catch (error) {
 				// Handle network errors or other exceptions
@@ -132,7 +132,7 @@ const JoinReqeustForm = () => {
 				<p className="muted">
 					Sent a request to join ITSC. Ensure your details provided are valid.
 				</p>
-				<Form noValidate onSubmit={sendJoinRequest}>
+				<Form noValidate validated={validated} onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom01">
 							<Form.Label>First name:</Form.Label>

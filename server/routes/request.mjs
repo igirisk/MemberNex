@@ -118,7 +118,9 @@ router.post("/", async (req, res) => {
 			const collection = await db.collection("members");
 			let result = await collection.insertOne(newMember);
 
-			res.status(200).send(successResponse("Join request sended", result));
+			res
+				.status(200)
+				.send(successResponse("Join request submitted successfully", result));
 		}
 	} catch (e) {
 		if (e.code === 11000) {

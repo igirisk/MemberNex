@@ -8,7 +8,7 @@ import { NavLink } from "react-router-dom";
 
 const MyNavbar = () => {
 	return (
-		<Navbar expand="lg" className="bg-body-tertiary mb-3">
+		<Navbar expand="lg" className="bg-body-tertiary" fixed="top">
 			<Container>
 				<NavLink className="navbar-brand d-flex align-items-center" to="/home">
 					<img
