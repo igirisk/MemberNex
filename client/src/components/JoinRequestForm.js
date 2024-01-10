@@ -60,7 +60,6 @@ const JoinRequestForm = () => {
 						study_year: "",
 						activeness: "",
 					});
-					setValidated(true);
 				} else {
 					// Handle unsuccessful response
 					window.alert(
@@ -95,7 +94,7 @@ const JoinRequestForm = () => {
 	}
 
 	function isValidMatrixNumber(matrix_number) {
-		const matrixNumberRegex = /^\d{6}[A-Za-z]$/; // 6 digit before a alphabet
+		const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
 		return matrixNumberRegex.test(matrix_number);
 	}
 
@@ -173,6 +172,7 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback type="invalid">
 								Please provide a valid email.
 							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 						<Form.Group as={Col} md="6" controlId="validationCustom04">
 							<Form.Label>Contact number:</Form.Label>
@@ -187,6 +187,7 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback type="invalid">
 								Please provide a valid contact number.
 							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
@@ -203,6 +204,7 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback type="invalid">
 								Please provide a valid matrix card number.
 							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 						<Form.Group as={Col} md="4">
 							<Form.Label>Year of study:</Form.Label>
@@ -221,6 +223,7 @@ const JoinRequestForm = () => {
 								<option>1</option>
 								<option>2</option>
 								<option>3</option>
+								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 						<Form.Group as={Col} md="4">
@@ -240,6 +243,7 @@ const JoinRequestForm = () => {
 								<option>medium</option>
 								<option>high</option>
 								<option>very high</option>
+								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 					</Row>
