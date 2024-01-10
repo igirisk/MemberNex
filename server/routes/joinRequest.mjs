@@ -42,7 +42,7 @@ function isValidContactNumber(contact_number) {
 }
 
 function isValidMatrixNumber(matrix_number) {
-	const matrixNumberRegex = /^\d{6}[A-Za-z]$/; // 6 digit before a alphabet
+	const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
 	return matrixNumberRegex.test(matrix_number);
 }
 
@@ -56,16 +56,30 @@ function isValidActiveness(activeness) {
 	return value.includes(activeness.toLowerCase());
 }
 
+// Connect to the MongoDB database and create a unique index on the "adminno" field
+const initDatabase = async () => {
+	const collection = await db.collection("joinRequests");
+
+	// Create a unique index on the "adminno" field
+	await collection.createIndex({ matrix_number: 1 }, { unique: true });
+
+	console.log(`MongoDB connected and index created.`);
+};
+// call the function to initislie the database
+initDatabase();
+
 // get list of all join request
 router.get("/", async (req, res) => {
 	try {
-		const collection = await db.collection("members");
+		const collection = await db.collection("joinRequests");
 		let result = await collection.find({}).toArray();
 
 		if (result.length !== 0) {
 			res.status(200).send(successResponse("Join requests retrieved", result));
 		} else {
-			res.status(404).send(errorResponse("There is currently no join request"));
+			res
+				.status(200)
+				.send(successResponse("There is currently no join request", result));
 		}
 	} catch (e) {
 		console.error("Error fetching all join requests:", e);
@@ -115,7 +129,7 @@ router.post("/", async (req, res) => {
 			newMember.matrix_number = newMember.matrix_number.toUpperCase();
 			newMember.activeness = newMember.activeness.toLowerCase();
 
-			const collection = await db.collection("members");
+			const collection = await db.collection("joinRequests");
 			let result = await collection.insertOne(newMember);
 
 			res
@@ -139,7 +153,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
-		const collection = await db.collection("members");
+		const collection = await db.collection("joinRequests");
 		let result = await collection.deleteOne(query);
 
 		if (result.deletedCount !== 0) {

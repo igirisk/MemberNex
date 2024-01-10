@@ -64,6 +64,18 @@ function isValidActiveness(activeness) {
 	return value.includes(activeness.toLowerCase());
 }
 
+// Connect to the MongoDB database and create a unique index on the "adminno" field
+const initDatabase = async () => {
+	const collection = await db.collection("members");
+
+	// Create a unique index on the "adminno" field
+	await collection.createIndex({ matrix_number: 1 }, { unique: true });
+
+	console.log(`MongoDB connected and index created.`);
+};
+// call the function to initislie the database
+initDatabase();
+
 // get list of all members info
 router.get("/", async (req, res) => {
 	try {
@@ -73,7 +85,9 @@ router.get("/", async (req, res) => {
 		if (result.length !== 0) {
 			res.status(200).send(successResponse("Members retrieved", result));
 		} else {
-			res.status(404).send(errorResponse("There is currently no members"));
+			res
+				.status(200)
+				.send(errorResponse("There is currently no members", result));
 		}
 	} catch (e) {
 		console.error("Error fetching all members info:", e);
@@ -185,6 +199,7 @@ router.patch("/:id", async (req, res) => {
 				email: req.body.email,
 				password: req.body.password,
 				confirmPassword: req.body.confirmPassword,
+				matrix_number: req.body.matrix_number,
 				contact_number: req.body.contact_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,

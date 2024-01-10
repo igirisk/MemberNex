@@ -34,6 +34,7 @@ const JoinRequest = (props) => {
 
 const JoinRequests = () => {
 	const [joinRequests, setJoinRequest] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	// Fetch all join requests from the database
 	useEffect(() => {
@@ -49,6 +50,9 @@ const JoinRequests = () => {
 				setJoinRequest(joinRequestData);
 			} catch (error) {
 				window.alert(error.message);
+			} finally {
+				// Set loading to false once data is fetched (whether successful or not)
+				setLoading(false);
 			}
 		}
 
@@ -80,15 +84,17 @@ const JoinRequests = () => {
 		});
 	}
 
-	// Display loading state or a message if joinRequests is still an empty array
-	if (joinRequests.length === 0) {
-		return <div>Loading...</div>;
-	}
 	return (
 		<div id="joinRequests" className="my-5">
 			<Container>
 				<h2 className="text-start">Join requests</h2>
-				<Row>{joinRequestList()}</Row>
+				{loading ? (
+					<p>Loading...</p>
+				) : joinRequests.length === 0 ? (
+					<p>There is currently no join request</p>
+				) : (
+					<Row>{joinRequestList()}</Row>
+				)}
 			</Container>
 		</div>
 	);
