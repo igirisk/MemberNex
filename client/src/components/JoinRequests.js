@@ -6,7 +6,7 @@ import Col from "react-bootstrap/esm/Col";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 
-const JoinRequest = (props) => {
+const JoinRequestCard = (props) => {
 	return (
 		<Col>
 			<Card style={{ width: "11rem" }}>
@@ -73,7 +73,7 @@ const JoinRequests = () => {
 	function joinRequestList() {
 		return joinRequests.map((joinRequest) => {
 			return (
-				<JoinRequest
+				<JoinRequestCard
 					joinRequest={joinRequest}
 					rejectJoinRequest={() => {
 						rejectJoinRequest(joinRequest._id);
