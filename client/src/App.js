@@ -5,7 +5,7 @@ import MyNavbar from "./components/MyNavbar";
 import Events from "./components/Events";
 import Members from "./components/Members";
 import JoinRequests from "./components/JoinRequests";
-import JoinReqeustForm from "./components/JoinReqeustForm";
+import JoinRequestForm from "./components/JoinRequestForm";
 
 function App() {
 	return (
@@ -22,7 +22,7 @@ function App() {
 						</>
 					}
 				/>
-				<Route path="/addMember" element={<JoinReqeustForm />} />
+				<Route path="/addMember" element={<JoinRequestForm />} />
 			</Routes>
 		</div>
 	);

@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
-const JoinReqeustForm = () => {
+const JoinRequestForm = () => {
 	const [form, setForm] = useState({
 		first_name: "",
 		last_name: "",
@@ -251,4 +251,4 @@ const JoinReqeustForm = () => {
 	);
 };
 
-export default JoinReqeustForm;
+export default JoinRequestForm;
