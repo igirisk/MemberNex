@@ -123,7 +123,7 @@ const JoinRequests = () => {
 			try {
 				const response = await fetch("http://localhost:3050/joinRequest");
 				if (response.ok) {
-					const joinRequestData = response.data;
+					const joinRequestData = (await response.json()).data;
 					setJoinRequest(joinRequestData);
 				} else {
 					const res = await response.json();
