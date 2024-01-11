@@ -13,7 +13,7 @@ const JoinRequestForm = () => {
 		last_name: "",
 		email: "",
 		contact_number: "",
-		matrix_number: "",
+		admin_number: "",
 		study_year: "",
 		activeness: "",
 	});
@@ -56,7 +56,7 @@ const JoinRequestForm = () => {
 						last_name: "",
 						email: "",
 						contact_number: "",
-						matrix_number: "",
+						admin_number: "",
 						study_year: "",
 						activeness: "",
 					});
@@ -93,9 +93,9 @@ const JoinRequestForm = () => {
 		return contactNumberRegex.test(contact_number);
 	}
 
-	function isValidMatrixNumber(matrix_number) {
+	function isValidMatrixNumber(admin_number) {
 		const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-		return matrixNumberRegex.test(matrix_number);
+		return matrixNumberRegex.test(admin_number);
 	}
 
 	function isValidYearOfStudy(study_year) {
@@ -192,17 +192,17 @@ const JoinRequestForm = () => {
 					</Row>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="4" controlId="validationCustom03">
-							<Form.Label>Matrix card number:</Form.Label>
+							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="Matrix card number"
+								placeholder="Admin number"
 								required
-								isInvalid={!isValidMatrixNumber(form.matrix_number)}
-								value={form.matrix_number}
-								onChange={(e) => updateForm({ matrix_number: e.target.value })}
+								isInvalid={!isValidMatrixNumber(form.admin_number)}
+								value={form.admin_number}
+								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
-								Please provide a valid matrix card number.
+								Please provide a valid Admin number.
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>

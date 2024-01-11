@@ -80,7 +80,7 @@ const JoinRequestDetails = ({ joinRequest, rejectJoinRequest, onClose }) => {
 							<h2>{joinRequest.first_name + " " + joinRequest.last_name}</h2>
 							<p>Email: {joinRequest.email}</p>
 							<p>Contact number: {joinRequest.contact_number}</p>
-							<p>Admin number:{joinRequest.matrix_number}</p>
+							<p>Admin number:{joinRequest.admin_number}</p>
 							<p>Year of study: {joinRequest.study_year}</p>
 							<p>Activeness: {joinRequest.activeness}</p>
 						</Stack>

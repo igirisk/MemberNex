@@ -49,9 +49,9 @@ function isValidContactNumber(contact_number) {
 	return contactNumberRegex.test(contact_number);
 }
 
-function isValidMatrixNumber(matrix_number) {
+function isValidMatrixNumber(admin_number) {
 	const matrixNumberRegex = /^\d{6}[A-Za-z]$/; // 6 digit before a alphabet
-	return matrixNumberRegex.test(matrix_number);
+	return matrixNumberRegex.test(admin_number);
 }
 
 function isValidYearOfStudy(study_year) {
@@ -69,9 +69,9 @@ const initDatabase = async () => {
 	const collection = await db.collection("members");
 
 	// Create a unique index on the "adminno" field
-	await collection.createIndex({ matrix_number: 1 }, { unique: true });
+	await collection.createIndex({ admin_number: 1 }, { unique: true });
 
-	console.log(`MongoDB connected and index created.`);
+	console.log(`members MongoDB connected and index created.`);
 };
 // call the function to initislie the database
 initDatabase();
@@ -123,7 +123,7 @@ router.post("/", async (req, res) => {
 			password: req.body.password,
 			confirmPassword: req.body.confirmPassword,
 			contact_number: req.body.contact_number,
-			matrix_number: req.body.matrix_number,
+			admin_number: req.body.admin_number,
 			study_year: req.body.study_year,
 			activeness: req.body.activeness,
 			request: true,
@@ -151,10 +151,8 @@ router.post("/", async (req, res) => {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
-		} else if (!isValidMatrixNumber(newMember.matrix_number)) {
-			res
-				.status(400)
-				.send(errorResponse("Please input a valid matrix card number."));
+		} else if (!isValidMatrixNumber(newMember.admin_number)) {
+			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newMember.study_year)) {
 			res
 				.status(400)
@@ -168,7 +166,7 @@ router.post("/", async (req, res) => {
 			newMember.first_name = firstUpperCase(newMember.first_name);
 			newMember.last_name = firstUpperCase(newMember.last_name);
 			newMember.email = newMember.email.toLowerCase();
-			newMember.matrix_number = newMember.matrix_number.toUpperCase();
+			newMember.admin_number = newMember.admin_number.toUpperCase();
 			newMember.activeness = newMember.activeness.toLowerCase();
 
 			const collection = await db.collection("members");
@@ -199,7 +197,7 @@ router.patch("/:id", async (req, res) => {
 				email: req.body.email,
 				password: req.body.password,
 				confirmPassword: req.body.confirmPassword,
-				matrix_number: req.body.matrix_number,
+				admin_number: req.body.admin_number,
 				contact_number: req.body.contact_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,
