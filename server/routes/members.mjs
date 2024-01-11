@@ -49,9 +49,9 @@ function isValidContactNumber(contact_number) {
 	return contactNumberRegex.test(contact_number);
 }
 
-function isValidMatrixNumber(matrix_number) {
-	const matrixNumberRegex = /^\d{6}[A-Za-z]$/; // 6 digit before a alphabet
-	return matrixNumberRegex.test(matrix_number);
+function isValidMatrixNumber(admin_number) {
+	const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
+	return matrixNumberRegex.test(admin_number);
 }
 
 function isValidYearOfStudy(study_year) {
@@ -64,14 +64,19 @@ function isValidActiveness(activeness) {
 	return value.includes(activeness.toLowerCase());
 }
 
+function isValidRole(role) {
+	const value = ["main com", "sub com", "member"];
+	return value.includes(role.toLowerCase());
+}
+
 // Connect to the MongoDB database and create a unique index on the "adminno" field
 const initDatabase = async () => {
 	const collection = await db.collection("members");
 
 	// Create a unique index on the "adminno" field
-	await collection.createIndex({ matrix_number: 1 }, { unique: true });
+	await collection.createIndex({ admin_number: 1 }, { unique: true });
 
-	console.log(`MongoDB connected and index created.`);
+	console.log(`members MongoDB connected and index created.`);
 };
 // call the function to initislie the database
 initDatabase();
@@ -120,13 +125,11 @@ router.post("/", async (req, res) => {
 			first_name: req.body.first_name,
 			last_name: req.body.last_name,
 			email: req.body.email,
-			password: req.body.password,
-			confirmPassword: req.body.confirmPassword,
 			contact_number: req.body.contact_number,
-			matrix_number: req.body.matrix_number,
+			admin_number: req.body.admin_number,
 			study_year: req.body.study_year,
 			activeness: req.body.activeness,
-			request: true,
+			role: "member",
 		};
 
 		if (areFieldsEmpty(newMember)) {
@@ -135,26 +138,12 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Please fill in all the input fields."));
 		} else if (!isValidEmail(newMember.email)) {
 			res.status(400).send(errorResponse("Please input a valid email."));
-		} else if (!isValidPassword(newMember.password)) {
-			res
-				.status(400)
-				.send(
-					errorResponse(
-						"Password contains at least eight characters, one uppercase letter, one lowercase letter, one number, and one special character."
-					)
-				);
-		} else if (newMember.password !== newMember.confirmPassword) {
-			res
-				.status(400)
-				.send(errorResponse("Password and confirm password does not match."));
 		} else if (!isValidContactNumber(newMember.contact_number)) {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
-		} else if (!isValidMatrixNumber(newMember.matrix_number)) {
-			res
-				.status(400)
-				.send(errorResponse("Please input a valid matrix card number."));
+		} else if (!isValidMatrixNumber(newMember.admin_number)) {
+			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newMember.study_year)) {
 			res
 				.status(400)
@@ -162,13 +151,11 @@ router.post("/", async (req, res) => {
 		} else if (!isValidActiveness(newMember.activeness)) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
 		} else {
-			delete newMember.confirmPassword;
-
 			// formatting values
 			newMember.first_name = firstUpperCase(newMember.first_name);
 			newMember.last_name = firstUpperCase(newMember.last_name);
 			newMember.email = newMember.email.toLowerCase();
-			newMember.matrix_number = newMember.matrix_number.toUpperCase();
+			newMember.admin_number = newMember.admin_number.toUpperCase();
 			newMember.activeness = newMember.activeness.toLowerCase();
 
 			const collection = await db.collection("members");
@@ -197,12 +184,11 @@ router.patch("/:id", async (req, res) => {
 				first_name: req.body.first_name,
 				last_name: req.body.last_name,
 				email: req.body.email,
-				password: req.body.password,
-				confirmPassword: req.body.confirmPassword,
-				matrix_number: req.body.matrix_number,
+				admin_number: req.body.admin_number,
 				contact_number: req.body.contact_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,
+				role: req.body.role,
 			},
 		};
 		for (let key in updates.$set) {
@@ -228,25 +214,6 @@ router.patch("/:id", async (req, res) => {
 		) {
 			res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (
-			updates.$set.hasOwnProperty("password") &&
-			!isValidPassword(updates.$set.password)
-		) {
-			res
-				.status(400)
-				.send(
-					errorResponse(
-						"Password must contain at least eight characters, one uppercase letter, one lowercase letter, one number, and one special character."
-					)
-				);
-		} else if (
-			updates.$set.hasOwnProperty("password") &&
-			updates.$set.hasOwnProperty("confirmPassword") &&
-			updates.$set.password !== updates.$set.confirmPassword
-		) {
-			res
-				.status(400)
-				.send(errorResponse("Password and confirm password do not match."));
-		} else if (
 			updates.$set.hasOwnProperty("contact_number") &&
 			!isValidContactNumber(updates.$set.contact_number)
 		) {
@@ -265,10 +232,20 @@ router.patch("/:id", async (req, res) => {
 			!isValidActiveness(updates.$set.activeness)
 		) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
+		} else if (
+			updates.$set.hasOwnProperty("role") &&
+			!isValidRole(updates.$set.role)
+		) {
+			res.status(400).send(errorResponse("Please input a vaild role"));
 		} else {
-			delete updates.$set.confirmPassword;
 			// formatting values
-			const keysToCheck = ["first_name", "last_name", "email", "activeness"];
+			const keysToCheck = [
+				"first_name",
+				"last_name",
+				"email",
+				"activeness",
+				"role",
+			];
 
 			keysToCheck.forEach((key) => {
 				if (updates.$set.hasOwnProperty(key)) {
@@ -278,6 +255,8 @@ router.patch("/:id", async (req, res) => {
 					} else if (key === "email") {
 						updates.$set[key] = updates.$set[key].toLowerCase();
 					} else if (key === "activeness") {
+						updates.$set[key] = updates.$set[key].toLowerCase();
+					} else if (key === "role") {
 						updates.$set[key] = updates.$set[key].toLowerCase();
 					}
 				}

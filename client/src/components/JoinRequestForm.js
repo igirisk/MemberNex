@@ -13,7 +13,7 @@ const JoinRequestForm = () => {
 		last_name: "",
 		email: "",
 		contact_number: "",
-		matrix_number: "",
+		admin_number: "",
 		study_year: "",
 		activeness: "",
 	});
@@ -21,19 +21,16 @@ const JoinRequestForm = () => {
 	const [validated, setValidated] = useState(false);
 
 	function updateForm(value) {
-		return setForm((prev) => {
-			return { ...prev, ...value };
-		});
+		setForm((prev) => ({ ...prev, ...value }));
+		setValidated(false);
 	}
 
 	async function sendJoinRequest(e) {
 		e.preventDefault();
-
 		const formElement = e.currentTarget;
+		setValidated(true);
 
-		// Check if the form is valid
 		if (formElement.checkValidity()) {
-			// post request to add a new member
 			const newJoinRequest = { ...form };
 
 			try {
@@ -42,38 +39,40 @@ const JoinRequestForm = () => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(newJoinRequest),
 				});
-				const res = await response.json();
 
 				if (response.ok) {
-					// Show success notification
-					toast.success(`${res.message}`, {
-						position: toast.POSITION.TOP_RIGHT,
-					});
-
-					// Reset form and activate validation after submission
 					setForm({
 						first_name: "",
 						last_name: "",
 						email: "",
 						contact_number: "",
-						matrix_number: "",
+						admin_number: "",
 						study_year: "",
 						activeness: "",
 					});
+
+					// Show success notification
+					toast.success(`Join request sent successfully`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
 				} else {
-					// Handle unsuccessful response
-					window.alert(
-						`Failed to submit join request. ${res.error}. Details: ${res.details}`
+					const res = await response.json();
+
+					// show unsuccessful notification
+					toast.error(`Failed to send join request. Try again later.`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+					console.log(
+						`Failed to submit join request.
+						${res.error}, details: ${res.details}`
 					);
 				}
 			} catch (error) {
-				// Handle network errors or other exceptions
-				window.alert(`An error occurred: ${error.message}`);
+				toast.error(`Failed to send join request. Try again later.`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+				console.error("Error sending join request:", error);
 			}
-		} else {
-			// If form is invalid, prevent submission and show error message
-			e.preventDefault();
-			e.stopPropagation();
 		}
 	}
 
@@ -93,9 +92,9 @@ const JoinRequestForm = () => {
 		return contactNumberRegex.test(contact_number);
 	}
 
-	function isValidMatrixNumber(matrix_number) {
+	function isValidMatrixNumber(admin_number) {
 		const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-		return matrixNumberRegex.test(matrix_number);
+		return matrixNumberRegex.test(admin_number);
 	}
 
 	function isValidYearOfStudy(study_year) {
@@ -192,17 +191,17 @@ const JoinRequestForm = () => {
 					</Row>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="4" controlId="validationCustom03">
-							<Form.Label>Matrix card number:</Form.Label>
+							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="Matrix card number"
+								placeholder="Admin number"
 								required
-								isInvalid={!isValidMatrixNumber(form.matrix_number)}
-								value={form.matrix_number}
-								onChange={(e) => updateForm({ matrix_number: e.target.value })}
+								isInvalid={!isValidMatrixNumber(form.admin_number)}
+								value={form.admin_number}
+								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
-								Please provide a valid matrix card number.
+								Please provide a valid Admin number.
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
@@ -212,6 +211,7 @@ const JoinRequestForm = () => {
 								id="study_year"
 								value={form.study_year}
 								required
+								isValid={isValidYearOfStudy(form.study_year)}
 								isInvalid={!isValidYearOfStudy(form.study_year)}
 								onChange={(e) =>
 									updateForm({ study_year: parseInt(e.target.value) })
@@ -223,7 +223,6 @@ const JoinRequestForm = () => {
 								<option>1</option>
 								<option>2</option>
 								<option>3</option>
-								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 						<Form.Group as={Col} md="4">
@@ -232,6 +231,7 @@ const JoinRequestForm = () => {
 								id="activeness"
 								value={form.activeness}
 								required
+								isValid={isValidActiveness(form.activeness)}
 								isInvalid={!isValidActiveness(form.activeness)}
 								onChange={(e) => updateForm({ activeness: e.target.value })}
 							>
@@ -243,7 +243,6 @@ const JoinRequestForm = () => {
 								<option>medium</option>
 								<option>high</option>
 								<option>very high</option>
-								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 					</Row>

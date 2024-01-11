@@ -41,9 +41,9 @@ function isValidContactNumber(contact_number) {
 	return contactNumberRegex.test(contact_number);
 }
 
-function isValidMatrixNumber(matrix_number) {
+function isValidMatrixNumber(admin_number) {
 	const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-	return matrixNumberRegex.test(matrix_number);
+	return matrixNumberRegex.test(admin_number);
 }
 
 function isValidYearOfStudy(study_year) {
@@ -61,9 +61,9 @@ const initDatabase = async () => {
 	const collection = await db.collection("joinRequests");
 
 	// Create a unique index on the "adminno" field
-	await collection.createIndex({ matrix_number: 1 }, { unique: true });
+	await collection.createIndex({ admin_number: 1 }, { unique: true });
 
-	console.log(`MongoDB connected and index created.`);
+	console.log(`joinRequests MongoDB connected and index created.`);
 };
 // call the function to initislie the database
 initDatabase();
@@ -90,47 +90,44 @@ router.get("/", async (req, res) => {
 // create new join request
 router.post("/", async (req, res) => {
 	try {
-		const newMember = {
+		const newJoinRequest = {
 			first_name: req.body.first_name,
 			last_name: req.body.last_name,
 			email: req.body.email,
 			contact_number: req.body.contact_number,
-			matrix_number: req.body.matrix_number,
+			admin_number: req.body.admin_number,
 			study_year: req.body.study_year,
 			activeness: req.body.activeness,
-			request: true,
 		};
 
-		if (areFieldsEmpty(newMember)) {
+		if (areFieldsEmpty(newJoinRequest)) {
 			res
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
-		} else if (!isValidEmail(newMember.email)) {
+		} else if (!isValidEmail(newJoinRequest.email)) {
 			res.status(400).send(errorResponse("Please input a valid email."));
-		} else if (!isValidContactNumber(newMember.contact_number)) {
+		} else if (!isValidContactNumber(newJoinRequest.contact_number)) {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
-		} else if (!isValidMatrixNumber(newMember.matrix_number)) {
-			res
-				.status(400)
-				.send(errorResponse("Please input a valid matrix card number."));
-		} else if (!isValidYearOfStudy(newMember.study_year)) {
+		} else if (!isValidMatrixNumber(newJoinRequest.admin_number)) {
+			res.status(400).send(errorResponse("Please input a valid admin number."));
+		} else if (!isValidYearOfStudy(newJoinRequest.study_year)) {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
-		} else if (!isValidActiveness(newMember.activeness)) {
+		} else if (!isValidActiveness(newJoinRequest.activeness)) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
 		} else {
 			// formatting values
-			newMember.first_name = firstUpperCase(newMember.first_name);
-			newMember.last_name = firstUpperCase(newMember.last_name);
-			newMember.email = newMember.email.toLowerCase();
-			newMember.matrix_number = newMember.matrix_number.toUpperCase();
-			newMember.activeness = newMember.activeness.toLowerCase();
+			newJoinRequest.first_name = firstUpperCase(newJoinRequest.first_name);
+			newJoinRequest.last_name = firstUpperCase(newJoinRequest.last_name);
+			newJoinRequest.email = newJoinRequest.email.toLowerCase();
+			newJoinRequest.admin_number = newJoinRequest.admin_number.toUpperCase();
+			newJoinRequest.activeness = newJoinRequest.activeness.toLowerCase();
 
 			const collection = await db.collection("joinRequests");
-			let result = await collection.insertOne(newMember);
+			let result = await collection.insertOne(newJoinRequest);
 
 			res
 				.status(200)
