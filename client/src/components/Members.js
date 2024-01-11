@@ -10,18 +10,90 @@ import Modal from "react-bootstrap/Modal";
 
 // Display member in card
 const MemberCard = (props) => {
+	const [showDetails, setShowDetails] = useState(false);
+
+	const handleShowDetails = () => {
+		setShowDetails(true);
+	};
+
+	const handleCloseDetails = () => {
+		setShowDetails(false);
+	};
+
 	return (
-		<Col>
-			<Card style={{ width: "11rem" }}>
-				<Card.Img variant="top" src="holder.js/100px180" />
-				<Card.Body>
-					<Card.Title>
-						{props.member.first_name + " " + props.member.last_name}
-					</Card.Title>
-					<Card.Text className="text-muted">{props.member.role}</Card.Text>
-				</Card.Body>
-			</Card>
-		</Col>
+		<>
+			<Col>
+				<Card style={{ width: "11rem" }} onClick={handleShowDetails}>
+					<Card.Img variant="top" src="holder.js/100px180" />
+					<Card.Body>
+						<Card.Title>
+							{props.member.first_name + " " + props.member.last_name}
+						</Card.Title>
+						<Card.Text className="text-muted">{props.member.role}</Card.Text>
+					</Card.Body>
+				</Card>
+			</Col>
+			{showDetails && (
+				<MemberDetails
+					member={props.member}
+					// acceptJoinRequest={props.acceptJoinRequest}
+					deleteMember={props.deleteMember}
+					onClose={handleCloseDetails}
+				/>
+			)}
+		</>
+	);
+};
+
+const MemberDetails = ({
+	member,
+	deleteMember,
+	// rejectJoinRequest,
+	onClose,
+}) => {
+	return (
+		<Modal show={true} onHide={onClose}>
+			<Modal.Header closeButton className="px-4">
+				<h2>Member</h2>
+			</Modal.Header>
+			<Modal.Body className="px-4">
+				<Row>
+					<Col md="4">
+						<img src="" alt="profile image" />
+						<Stack gap={1}>
+							<Button
+								variant="success"
+								onClick={() => {
+									onClose(); // close the modal after editing
+								}}
+							>
+								Edit
+							</Button>
+							<Button
+								variant="danger"
+								onClick={() => {
+									deleteMember(member._id);
+									onClose(); // close the modal after deleting
+								}}
+							>
+								Delete
+							</Button>
+						</Stack>
+					</Col>
+					<Col md="8">
+						<Stack gap={1}>
+							<h2>{member.first_name + " " + member.last_name}</h2>
+							<p>Role: {member.role}</p>
+							<p>Email: {member.email}</p>
+							<p>Contact number: {member.contact_number}</p>
+							<p>Admin number:{member.admin_number}</p>
+							<p>Year of study: {member.study_year}</p>
+							<p>Activeness: {member.activeness}</p>
+						</Stack>
+					</Col>
+				</Row>
+			</Modal.Body>
+		</Modal>
 	);
 };
 
@@ -107,9 +179,9 @@ const Members = () => {
 					// acceptJoinRequest={() => {
 					// 	acceptJoinRequest(member);
 					// }}
-					// rejectJoinRequest={() => {
-					// 	rejectJoinRequest(member._id);
-					// }}
+					deleteMember={() => {
+						deleteMember(member._id);
+					}}
 					key={member._id}
 				/>
 			);

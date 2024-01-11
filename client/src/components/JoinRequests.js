@@ -217,7 +217,7 @@ const JoinRequests = () => {
 					position: toast.POSITION.TOP_RIGHT,
 				});
 
-				// Assuming fetch didn't throw an error, update the state
+				// Update the state
 				const newJoinRequest = joinRequests.filter(
 					(el) => el._id !== joinRequest._id
 				);
