@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
@@ -6,7 +7,6 @@ import Col from "react-bootstrap/esm/Col";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import Modal from "react-bootstrap/Modal";
-import { ToastContainer, toast } from "react-toastify";
 
 const JoinRequestCard = (props) => {
 	const [showDetails, setShowDetails] = useState(false);
@@ -114,7 +114,7 @@ const JoinRequestDetails = ({
 };
 
 const JoinRequests = () => {
-	const [joinRequests, setJoinRequest] = useState([]);
+	const [joinRequests, setJoinRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	// Fetch all join requests from the database
@@ -124,7 +124,7 @@ const JoinRequests = () => {
 				const response = await fetch("http://localhost:3050/joinRequest");
 				if (response.ok) {
 					const joinRequestData = (await response.json()).data;
-					setJoinRequest(joinRequestData);
+					setJoinRequests(joinRequestData);
 				} else {
 					const res = await response.json();
 
@@ -159,8 +159,8 @@ const JoinRequests = () => {
 			});
 
 			if (response.ok) {
-				const newJoinRequest = joinRequests.filter((el) => el._id !== id);
-				setJoinRequest(newJoinRequest);
+				const newJoinRequests = joinRequests.filter((el) => el._id !== id);
+				setJoinRequests(newJoinRequests);
 
 				// Show success notification
 				toast.success(`Join request rejected`, {
@@ -221,7 +221,7 @@ const JoinRequests = () => {
 				const newJoinRequest = joinRequests.filter(
 					(el) => el._id !== joinRequest._id
 				);
-				setJoinRequest(newJoinRequest);
+				setJoinRequests(newJoinRequest);
 			} else {
 				const [memberRes, joinRequestRes] = await Promise.all([
 					memberResponse.json(),
@@ -247,7 +247,7 @@ const JoinRequests = () => {
 	}
 
 	// Map out the joinRequests
-	function joinRequestList() {
+	function joinRequestsList() {
 		return joinRequests.map((joinRequest) => {
 			return (
 				<JoinRequestCard
@@ -273,7 +273,7 @@ const JoinRequests = () => {
 				) : joinRequests.length === 0 ? (
 					<p>There is currently no join request</p>
 				) : (
-					<Row>{joinRequestList()}</Row>
+					<Row>{joinRequestsList()}</Row>
 				)}
 			</Container>
 			<ToastContainer />
