@@ -21,19 +21,16 @@ const JoinRequestForm = () => {
 	const [validated, setValidated] = useState(false);
 
 	function updateForm(value) {
-		return setForm((prev) => {
-			return { ...prev, ...value };
-		});
+		setForm((prev) => ({ ...prev, ...value }));
+		setValidated(false);
 	}
 
 	async function sendJoinRequest(e) {
 		e.preventDefault();
-
 		const formElement = e.currentTarget;
+		setValidated(true);
 
-		// Check if the form is valid
 		if (formElement.checkValidity()) {
-			// post request to add a new member
 			const newJoinRequest = { ...form };
 
 			try {
@@ -42,15 +39,8 @@ const JoinRequestForm = () => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(newJoinRequest),
 				});
-				const res = await response.json();
 
 				if (response.ok) {
-					// Show success notification
-					toast.success(`${res.message}`, {
-						position: toast.POSITION.TOP_RIGHT,
-					});
-
-					// Reset form and activate validation after submission
 					setForm({
 						first_name: "",
 						last_name: "",
@@ -60,20 +50,29 @@ const JoinRequestForm = () => {
 						study_year: "",
 						activeness: "",
 					});
+
+					// Show success notification
+					toast.success(`Join request sent successfully`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
 				} else {
-					// Handle unsuccessful response
-					window.alert(
-						`Failed to submit join request. ${res.error}. Details: ${res.details}`
+					const res = await response.json();
+
+					// show unsuccessful notification
+					toast.error(`Failed to send join request. Try again later.`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+					console.log(
+						`Failed to submit join request.
+						${res.error}, details: ${res.details}`
 					);
 				}
 			} catch (error) {
-				// Handle network errors or other exceptions
-				window.alert(`An error occurred: ${error.message}`);
+				toast.error(`Failed to send join request. Try again later.`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+				console.error("Error sending join request:", error);
 			}
-		} else {
-			// If form is invalid, prevent submission and show error message
-			e.preventDefault();
-			e.stopPropagation();
 		}
 	}
 
@@ -212,6 +211,7 @@ const JoinRequestForm = () => {
 								id="study_year"
 								value={form.study_year}
 								required
+								isValid={isValidYearOfStudy(form.study_year)}
 								isInvalid={!isValidYearOfStudy(form.study_year)}
 								onChange={(e) =>
 									updateForm({ study_year: parseInt(e.target.value) })
@@ -223,7 +223,6 @@ const JoinRequestForm = () => {
 								<option>1</option>
 								<option>2</option>
 								<option>3</option>
-								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 						<Form.Group as={Col} md="4">
@@ -232,6 +231,7 @@ const JoinRequestForm = () => {
 								id="activeness"
 								value={form.activeness}
 								required
+								isValid={isValidActiveness(form.activeness)}
 								isInvalid={!isValidActiveness(form.activeness)}
 								onChange={(e) => updateForm({ activeness: e.target.value })}
 							>
@@ -243,7 +243,6 @@ const JoinRequestForm = () => {
 								<option>medium</option>
 								<option>high</option>
 								<option>very high</option>
-								<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 							</Form.Select>
 						</Form.Group>
 					</Row>

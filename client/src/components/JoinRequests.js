@@ -121,19 +121,27 @@ const JoinRequests = () => {
 	useEffect(() => {
 		async function getAllJoinRequests() {
 			try {
-				const res = await fetch("http://localhost:3050/joinRequest");
-				if (!res.ok) {
-					throw new Error(`An error occurred: ${res.statusText}`);
-				}
+				const response = await fetch("http://localhost:3050/joinRequest");
+				if (response.ok) {
+					const joinRequestData = response.data;
+					setJoinRequest(joinRequestData);
+				} else {
+					const res = await response.json();
 
-				const load = await res.json();
-				const joinRequestData = load.data;
-				setJoinRequest(joinRequestData);
+					// show unsuccessful notification
+					toast.error(`Failed to get join requests. Try again later.`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+					console.log(
+						`Failed to get join requests.
+						${res.error}, details: ${res.details}`
+					);
+				}
 			} catch (error) {
 				toast.error(`Failed to get join requests. Try again later.`, {
 					position: toast.POSITION.TOP_RIGHT,
 				});
-				console.log(`Get allJoinRequest failed: ${error}`);
+				console.error("Error getting join requests:", error);
 			} finally {
 				// Set loading to false once data is fetched (whether successful or not)
 				setLoading(false);
@@ -146,15 +154,34 @@ const JoinRequests = () => {
 	// Remove join request from database
 	async function rejectJoinRequest(id) {
 		try {
-			await fetch(`http://localhost:3050/joinRequest/${id}`, {
+			const response = await fetch(`http://localhost:3050/joinRequest/${id}`, {
 				method: "DELETE",
 			});
 
-			// Assuming fetch didn't throw an error, update the state
-			const newJoinRequest = joinRequests.filter((el) => el._id !== id);
-			setJoinRequest(newJoinRequest);
+			if (response.ok) {
+				const newJoinRequest = joinRequests.filter((el) => el._id !== id);
+				setJoinRequest(newJoinRequest);
+
+				// Show success notification
+				toast.success(`Join request rejected`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+			} else {
+				const res = await response.json();
+
+				// show unsuccessful notification
+				toast.error(`Failed to reject join request. Try again later.`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+				console.log(
+					`Failed to reject join request.
+					${res.error}, details: ${res.details}`
+				);
+			}
 		} catch (error) {
-			// Handle errors here
+			toast.error(`Failed to reject join request. Try again later.`, {
+				position: toast.POSITION.TOP_RIGHT,
+			});
 			console.error("Error rejecting join request:", error);
 		}
 	}
@@ -184,11 +211,6 @@ const JoinRequests = () => {
 				}),
 			]);
 
-			const [memberRes, joinRequestRes] = await Promise.all([
-				memberResponse.json(),
-				joinRequestResponse.json(),
-			]);
-
 			if (memberResponse.ok && joinRequestResponse.ok) {
 				// Show success notification
 				toast.success(`Join request accepted`, {
@@ -201,16 +223,19 @@ const JoinRequests = () => {
 				);
 				setJoinRequest(newJoinRequest);
 			} else {
+				const [memberRes, joinRequestRes] = await Promise.all([
+					memberResponse.json(),
+					joinRequestResponse.json(),
+				]);
+
 				// show unsuccessful notification
 				toast.error(`Failed to accept join request. Try again later.`, {
 					position: toast.POSITION.TOP_RIGHT,
 				});
 				console.log(
-					`Failed to accept join request. \n
-						Member Error: ${memberRes.error}. \n
-						Member Details: ${memberRes.details} \n
-						Join Request Error: ${joinRequestRes.error}. \n
-						Join Request Details: ${joinRequestRes.details}`
+					`Failed to accept join request. 
+					Member Error: ${memberRes.error}, details: ${memberRes.details} 
+					Join Request Error: ${joinRequestRes.error}, details: ${joinRequestRes.details}`
 				);
 			}
 		} catch (error) {
