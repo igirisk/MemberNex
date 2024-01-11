@@ -6,6 +6,7 @@ import Col from "react-bootstrap/esm/Col";
 import Button from "react-bootstrap/Button";
 import Stack from "react-bootstrap/Stack";
 import Modal from "react-bootstrap/Modal";
+import { ToastContainer, toast } from "react-toastify";
 
 const JoinRequestCard = (props) => {
 	const [showDetails, setShowDetails] = useState(false);
@@ -28,7 +29,14 @@ const JoinRequestCard = (props) => {
 							{props.joinRequest.first_name + " " + props.joinRequest.last_name}
 						</Card.Title>
 						<Stack gap={1}>
-							<Button variant="success">Accept</Button>
+							<Button
+								variant="success"
+								onClick={() => {
+									props.acceptJoinRequest(props.joinRequest);
+								}}
+							>
+								Accept
+							</Button>
 							<Button
 								variant="danger"
 								onClick={() => {
@@ -44,6 +52,7 @@ const JoinRequestCard = (props) => {
 			{showDetails && (
 				<JoinRequestDetails
 					joinRequest={props.joinRequest}
+					acceptJoinRequest={props.acceptJoinRequest}
 					rejectJoinRequest={props.rejectJoinRequest}
 					onClose={handleCloseDetails}
 				/>
@@ -52,7 +61,12 @@ const JoinRequestCard = (props) => {
 	);
 };
 
-const JoinRequestDetails = ({ joinRequest, rejectJoinRequest, onClose }) => {
+const JoinRequestDetails = ({
+	joinRequest,
+	acceptJoinRequest,
+	rejectJoinRequest,
+	onClose,
+}) => {
 	return (
 		<Modal show={true} onHide={onClose}>
 			<Modal.Header closeButton className="px-4">
@@ -63,7 +77,15 @@ const JoinRequestDetails = ({ joinRequest, rejectJoinRequest, onClose }) => {
 					<Col md="4">
 						<img src="" alt="profile image" />
 						<Stack gap={1}>
-							<Button variant="success">Accept</Button>
+							<Button
+								variant="success"
+								onClick={() => {
+									acceptJoinRequest(joinRequest);
+									onClose(); // close the modal after accepting
+								}}
+							>
+								Accept
+							</Button>
 							<Button
 								variant="danger"
 								onClick={() => {
@@ -108,7 +130,10 @@ const JoinRequests = () => {
 				const joinRequestData = load.data;
 				setJoinRequest(joinRequestData);
 			} catch (error) {
-				window.alert(error.message);
+				toast.error(`Failed to get join requests. Try again later.`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+				console.log(`Get allJoinRequest failed: ${error}`);
 			} finally {
 				// Set loading to false once data is fetched (whether successful or not)
 				setLoading(false);
@@ -116,16 +141,84 @@ const JoinRequests = () => {
 		}
 
 		getAllJoinRequests();
-	}, [joinRequests.length]);
+	}, []);
 
 	// Remove join request from database
 	async function rejectJoinRequest(id) {
-		await fetch(`http://localhost:3050/joinRequest/${id}`, {
-			method: "DELETE",
-		});
+		try {
+			await fetch(`http://localhost:3050/joinRequest/${id}`, {
+				method: "DELETE",
+			});
 
-		const newJoinRequest = joinRequests.filter((el) => el._id !== id);
-		setJoinRequest(newJoinRequest);
+			// Assuming fetch didn't throw an error, update the state
+			const newJoinRequest = joinRequests.filter((el) => el._id !== id);
+			setJoinRequest(newJoinRequest);
+		} catch (error) {
+			// Handle errors here
+			console.error("Error rejecting join request:", error);
+		}
+	}
+
+	// Remove join request and create member
+	async function acceptJoinRequest(joinRequest) {
+		try {
+			const newMember = {
+				first_name: joinRequest.first_name,
+				last_name: joinRequest.last_name,
+				email: joinRequest.email,
+				contact_number: joinRequest.contact_number,
+				admin_number: joinRequest.admin_number,
+				study_year: joinRequest.study_year,
+				activeness: joinRequest.activeness,
+			};
+
+			// Create new member and remove join request simultaneously
+			const [memberResponse, joinRequestResponse] = await Promise.all([
+				fetch("http://localhost:3050/member", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(newMember),
+				}),
+				fetch(`http://localhost:3050/joinRequest/${joinRequest._id}`, {
+					method: "DELETE",
+				}),
+			]);
+
+			const [memberRes, joinRequestRes] = await Promise.all([
+				memberResponse.json(),
+				joinRequestResponse.json(),
+			]);
+
+			if (memberResponse.ok && joinRequestResponse.ok) {
+				// Show success notification
+				toast.success(`Join request accepted`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+
+				// Assuming fetch didn't throw an error, update the state
+				const newJoinRequest = joinRequests.filter(
+					(el) => el._id !== joinRequest._id
+				);
+				setJoinRequest(newJoinRequest);
+			} else {
+				// show unsuccessful notification
+				toast.error(`Failed to accept join request. Try again later.`, {
+					position: toast.POSITION.TOP_RIGHT,
+				});
+				console.log(
+					`Failed to accept join request. \n
+						Member Error: ${memberRes.error}. \n
+						Member Details: ${memberRes.details} \n
+						Join Request Error: ${joinRequestRes.error}. \n
+						Join Request Details: ${joinRequestRes.details}`
+				);
+			}
+		} catch (error) {
+			toast.error(`Failed to accept join request. Try again later.`, {
+				position: toast.POSITION.TOP_RIGHT,
+			});
+			console.error("Error accepting join request:", error);
+		}
 	}
 
 	// Map out the joinRequests
@@ -134,6 +227,9 @@ const JoinRequests = () => {
 			return (
 				<JoinRequestCard
 					joinRequest={joinRequest}
+					acceptJoinRequest={() => {
+						acceptJoinRequest(joinRequest);
+					}}
 					rejectJoinRequest={() => {
 						rejectJoinRequest(joinRequest._id);
 					}}
@@ -155,6 +251,7 @@ const JoinRequests = () => {
 					<Row>{joinRequestList()}</Row>
 				)}
 			</Container>
+			<ToastContainer />
 		</div>
 	);
 };
