@@ -76,6 +76,7 @@ const JoinRequestForm = () => {
 		}
 	}
 
+	// validations
 	const isValidName = (name) => {
 		// Check if the name is not empty
 		return name.trim() !== "";
@@ -92,9 +93,9 @@ const JoinRequestForm = () => {
 		return contactNumberRegex.test(contact_number);
 	}
 
-	function isValidMatrixNumber(admin_number) {
-		const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-		return matrixNumberRegex.test(admin_number);
+	function isValidAdminNumber(admin_number) {
+		const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
+		return adminNumberRegex.test(admin_number);
 	}
 
 	function isValidYearOfStudy(study_year) {
@@ -196,7 +197,7 @@ const JoinRequestForm = () => {
 								type="text"
 								placeholder="Admin number"
 								required
-								isInvalid={!isValidMatrixNumber(form.admin_number)}
+								isInvalid={!isValidAdminNumber(form.admin_number)}
 								value={form.admin_number}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
@@ -226,7 +227,7 @@ const JoinRequestForm = () => {
 							</Form.Select>
 						</Form.Group>
 						<Form.Group as={Col} md="4">
-							<Form.Label>Activeness</Form.Label>
+							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"
 								value={form.activeness}
