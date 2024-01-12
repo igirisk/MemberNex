@@ -49,9 +49,9 @@ function isValidContactNumber(contact_number) {
 	return contactNumberRegex.test(contact_number);
 }
 
-function isValidMatrixNumber(admin_number) {
-	const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-	return matrixNumberRegex.test(admin_number);
+function isValidAdminNumber(admin_number) {
+	const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
+	return adminNumberRegex.test(admin_number);
 }
 
 function isValidYearOfStudy(study_year) {
@@ -92,7 +92,7 @@ router.get("/", async (req, res) => {
 		} else {
 			res
 				.status(200)
-				.send(errorResponse("There is currently no members", result));
+				.send(successResponse("There is currently no members", result));
 		}
 	} catch (e) {
 		console.error("Error fetching all members info:", e);
@@ -142,7 +142,7 @@ router.post("/", async (req, res) => {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
-		} else if (!isValidMatrixNumber(newMember.admin_number)) {
+		} else if (!isValidAdminNumber(newMember.admin_number)) {
 			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newMember.study_year)) {
 			res
@@ -165,10 +165,10 @@ router.post("/", async (req, res) => {
 		}
 	} catch (e) {
 		if (e.code === 11000) {
-			console.error("Matrix number already registered.", e);
+			console.error("Admin number already registered.", e);
 			res
 				.status(500)
-				.send(errorResponse("Matrix number already registered, try another."));
+				.send(errorResponse("Admin number already registered, try another."));
 		} else {
 			console.error("Error creating new member:", e);
 			res.status(500).send(errorResponse("Internal Server Error", e));
@@ -184,8 +184,8 @@ router.patch("/:id", async (req, res) => {
 				first_name: req.body.first_name,
 				last_name: req.body.last_name,
 				email: req.body.email,
-				admin_number: req.body.admin_number,
 				contact_number: req.body.contact_number,
+				admin_number: req.body.admin_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,
 				role: req.body.role,
@@ -285,8 +285,15 @@ router.patch("/:id", async (req, res) => {
 			}
 		}
 	} catch (e) {
-		console.error("Error updating member info:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		if (e.code === 11000) {
+			console.error("Admin number already registered.", e);
+			res
+				.status(500)
+				.send(errorResponse("Admin number already registered, try another."));
+		} else {
+			console.error("Error updating member info:", e);
+			res.status(500).send(errorResponse("Internal Server Error", e));
+		}
 	}
 });
 

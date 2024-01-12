@@ -41,9 +41,9 @@ function isValidContactNumber(contact_number) {
 	return contactNumberRegex.test(contact_number);
 }
 
-function isValidMatrixNumber(admin_number) {
-	const matrixNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-	return matrixNumberRegex.test(admin_number);
+function isValidAdminNumber(admin_number) {
+	const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
+	return adminNumberRegex.test(admin_number);
 }
 
 function isValidYearOfStudy(study_year) {
@@ -110,7 +110,7 @@ router.post("/", async (req, res) => {
 			res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
-		} else if (!isValidMatrixNumber(newJoinRequest.admin_number)) {
+		} else if (!isValidAdminNumber(newJoinRequest.admin_number)) {
 			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newJoinRequest.study_year)) {
 			res
@@ -135,10 +135,10 @@ router.post("/", async (req, res) => {
 		}
 	} catch (e) {
 		if (e.code === 11000) {
-			console.error("Matrix number already registered.", e);
+			console.error("Admin number already registered.", e);
 			res
 				.status(500)
-				.send(errorResponse("Matrix number already registered, try another."));
+				.send(errorResponse("Admin number already registered, try another."));
 		} else {
 			console.error("Error creating new member:", e);
 			res.status(500).send(errorResponse("Internal Server Error", e));
