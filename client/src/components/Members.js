@@ -225,7 +225,7 @@ const MemberEdit = ({ member, closeEdit }) => {
 				<img src="" alt="profile image" />
 				<Button variant="success">Upload image</Button>
 			</Col>
-			<Col>
+			<Col md="8">
 				<Form
 					noValidate
 					validated={validated}
