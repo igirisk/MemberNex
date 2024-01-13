@@ -394,8 +394,8 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 								id="role"
 								value={form.role}
 								required
-								isValid={isValidActiveness(form.role)}
-								isInvalid={!isValidActiveness(form.role)}
+								isValid={isValidRole(form.role)}
+								isInvalid={!isValidRole(form.role)}
 								onChange={(e) => updateForm({ role: e.target.value })}
 							>
 								<option value="" disabled>
