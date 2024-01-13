@@ -113,9 +113,14 @@ const JoinRequestDetails = ({
 	);
 };
 
-const JoinRequests = () => {
+const JoinRequests = ({ setReload }) => {
 	const [joinRequests, setJoinRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
+
+	const handleUpdate = () => {
+		// Call the callback function to trigger the useEffect in Members
+		setReload((prev) => !prev);
+	};
 
 	// Fetch all join requests from the database
 	useEffect(() => {
@@ -212,6 +217,8 @@ const JoinRequests = () => {
 			]);
 
 			if (memberResponse.ok && joinRequestResponse.ok) {
+				// Trigger the update of Members component
+				handleUpdate();
 				// Show success notification
 				toast.success(`Join request accepted`, {
 					position: toast.POSITION.TOP_RIGHT,

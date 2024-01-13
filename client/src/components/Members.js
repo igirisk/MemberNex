@@ -34,13 +34,19 @@ const MemberCard = (props) => {
 					</Card.Body>
 				</Card>
 			</Col>
-			{showModal && <MemberModal onClose={handleCloseModal} props={props} />}
+			{showModal && (
+				<MemberModal
+					onClose={handleCloseModal}
+					props={props}
+					updateTrigger={props.updateTrigger}
+				/>
+			)}
 		</>
 	);
 };
 
 // Member popup modal
-const MemberModal = ({ props, onClose }) => {
+const MemberModal = ({ props, onClose, updateTrigger }) => {
 	const [showEdit, setShowEdit] = useState(false);
 
 	const handleShowEdit = () => {
@@ -51,6 +57,11 @@ const MemberModal = ({ props, onClose }) => {
 		setShowEdit(false);
 	};
 
+	const handleUpdate = () => {
+		// Call the callback function to trigger the useEffect in Members
+		updateTrigger((prev) => !prev);
+	};
+
 	return (
 		<Modal show={true} onHide={onClose}>
 			<Modal.Header closeButton className="px-4 pb-3">
@@ -58,7 +69,11 @@ const MemberModal = ({ props, onClose }) => {
 			</Modal.Header>
 			<Modal.Body className="px-4">
 				{showEdit ? (
-					<MemberEdit member={props.member} closeEdit={handleCloseEdit} />
+					<MemberEdit
+						member={props.member}
+						closeEdit={handleCloseEdit}
+						sendReload={handleUpdate}
+					/>
 				) : (
 					<MemberDetails
 						member={props.member}
@@ -109,7 +124,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 };
 
 // Member edit form pop up content
-const MemberEdit = ({ member, closeEdit }) => {
+const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	const [form, setForm] = useState({
 		first_name: "",
 		last_name: "",
@@ -128,7 +143,7 @@ const MemberEdit = ({ member, closeEdit }) => {
 		setValidated(false);
 	}
 
-	async function updateMember(e, id) {
+	async function updateMember(e, id, sendReload) {
 		e.preventDefault();
 		const formElement = e.currentTarget;
 		setValidated(true);
@@ -155,6 +170,9 @@ const MemberEdit = ({ member, closeEdit }) => {
 						activeness: "",
 						role: "",
 					});
+
+					// Trigger the callback function passed from MemberModal
+					sendReload();
 
 					// Show success notification
 					toast.success(`Member updated successfully`, {
@@ -230,7 +248,7 @@ const MemberEdit = ({ member, closeEdit }) => {
 				<Form
 					noValidate
 					validated={validated}
-					onSubmit={(e) => updateMember(e, member._id)}
+					onSubmit={(e) => updateMember(e, member._id, sendReload)}
 				>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom01">
@@ -369,9 +387,10 @@ const MemberEdit = ({ member, closeEdit }) => {
 	);
 };
 
-const Members = () => {
+const Members = (relaod) => {
 	const [members, setMembers] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [updateTrigger, setUpdateTrigger] = useState(false);
 
 	// Fetch all join requests from the database
 	useEffect(() => {
@@ -405,7 +424,7 @@ const Members = () => {
 		}
 
 		getAllMembers();
-	}, []);
+	}, [updateTrigger, relaod]);
 
 	// Remove member from database
 	async function deleteMember(id) {
@@ -443,7 +462,7 @@ const Members = () => {
 	}
 
 	// Map out the members
-	function membersList() {
+	function membersList(updateTriggerSetter) {
 		return members.map((member) => {
 			return (
 				<MemberCard
@@ -452,6 +471,7 @@ const Members = () => {
 						deleteMember(member._id);
 					}}
 					key={member._id}
+					updateTrigger={updateTriggerSetter}
 				/>
 			);
 		});
@@ -467,7 +487,7 @@ const Members = () => {
 				) : members.length === 0 ? (
 					<p>There is currently no member</p>
 				) : (
-					<Row>{membersList()}</Row>
+					<Row>{membersList(setUpdateTrigger)}</Row>
 				)}
 			</Container>
 			<ToastContainer />

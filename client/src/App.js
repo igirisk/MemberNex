@@ -6,8 +6,11 @@ import Events from "./components/Events";
 import Members from "./components/Members";
 import JoinRequests from "./components/JoinRequests";
 import JoinRequestForm from "./components/JoinRequestForm";
+import { useState } from "react";
 
 function App() {
+	const [reload, setReload] = useState(false);
+
 	return (
 		<div className="App py-5">
 			<MyNavbar />
@@ -17,8 +20,8 @@ function App() {
 					element={
 						<>
 							<Events />
-							<Members />
-							<JoinRequests />
+							<Members reload={reload} />
+							<JoinRequests setReload={setReload} />
 						</>
 					}
 				/>

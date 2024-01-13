@@ -29,7 +29,7 @@ const Events = () => {
 							<Card.Img variant="top" src="holder.js/100px180" />
 							<Card.Body>
 								<Card.Title>Name</Card.Title>
-								<Card.Text className="text-muted">role</Card.Text>
+								<Card.Text className="text-muted">date</Card.Text>
 							</Card.Body>
 						</Card>
 					</Col>
@@ -38,7 +38,7 @@ const Events = () => {
 							<Card.Img variant="top" src="holder.js/100px180" />
 							<Card.Body>
 								<Card.Title>Name</Card.Title>
-								<Card.Text className="text-muted">role</Card.Text>
+								<Card.Text className="text-muted">date</Card.Text>
 							</Card.Body>
 						</Card>
 					</Col>
@@ -47,7 +47,7 @@ const Events = () => {
 							<Card.Img variant="top" src="holder.js/100px180" />
 							<Card.Body>
 								<Card.Title>Name</Card.Title>
-								<Card.Text className="text-muted">role</Card.Text>
+								<Card.Text className="text-muted">date</Card.Text>
 							</Card.Body>
 						</Card>
 					</Col>
@@ -56,7 +56,7 @@ const Events = () => {
 							<Card.Img variant="top" src="holder.js/100px180" />
 							<Card.Body>
 								<Card.Title>Name</Card.Title>
-								<Card.Text className="text-muted">role</Card.Text>
+								<Card.Text className="text-muted">date</Card.Text>
 							</Card.Body>
 						</Card>
 					</Col>
