@@ -25,7 +25,7 @@ function App() {
 						</>
 					}
 				/>
-				<Route path="/addMember" element={<JoinRequestForm />} />
+				<Route path="/sendJoinRequest" element={<JoinRequestForm />} />
 			</Routes>
 		</div>
 	);

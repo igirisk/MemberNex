@@ -182,7 +182,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					const res = await response.json();
 
 					// show unsuccessful notification
-					toast.error(`Failed to update member. Try again later.`, {
+					toast.error(`${res.error}.`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 					console.log(

@@ -18,17 +18,13 @@ const JoinRequestForm = () => {
 		activeness: "",
 	});
 
-	const [validated, setValidated] = useState(false);
-
 	function updateForm(value) {
 		setForm((prev) => ({ ...prev, ...value }));
-		setValidated(false);
 	}
 
 	async function sendJoinRequest(e) {
 		e.preventDefault();
 		const formElement = e.currentTarget;
-		setValidated(true);
 
 		if (formElement.checkValidity()) {
 			const newJoinRequest = { ...form };
@@ -59,7 +55,7 @@ const JoinRequestForm = () => {
 					const res = await response.json();
 
 					// show unsuccessful notification
-					toast.error(`Failed to send join request. Try again later.`, {
+					toast.error(`${res.error}`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 					console.log(
@@ -76,44 +72,40 @@ const JoinRequestForm = () => {
 		}
 	}
 
-	// validations
-	const isValidName = (name) => {
-		// Check if the name is not empty
-		return name.trim() !== "";
-	};
+	// #region Custom form validations
+	function isValidInput(value, validationCondition) {
+		const isValid = validationCondition(value);
+		return isValid;
+	}
 
-	function isValidEmail(email) {
+	const isValidFirstName = (first_name) =>
+		isValidInput(first_name, (value) => value.trim() !== "");
+
+	const isValidLastName = (last_name) =>
+		isValidInput(last_name, (value) => value.trim() !== "");
+
+	const isValidEmail = (email) =>
 		// one or more characters that is not white space before @, contains @, one or more characters that is not white space after @, contains .,one or more chatacters that matches is not white space till the end of the str
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
-	}
+		isValidInput(email, (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
 
-	function isValidContactNumber(contact_number) {
-		const contactNumberRegex = /^\d{8}$/; // 8 digit contact number
-		return contactNumberRegex.test(contact_number);
-	}
+	const isValidContactNumber = (contact_number) =>
+		// 8 digit contact number
+		isValidInput(contact_number, (value) => /^\d{8}$/.test(value.toString()));
 
-	function isValidAdminNumber(admin_number) {
-		const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-		return adminNumberRegex.test(admin_number);
-	}
+	const isValidAdminNumber = (admin_number) =>
+		// 7 digit before a alphabet
+		isValidInput(admin_number, (value) => /^\d{7}[A-Za-z]$/.test(value));
 
-	function isValidYearOfStudy(study_year) {
-		const value = [1, 2, 3];
-		return value.includes(study_year);
-	}
+	const isValidYearOfStudy = (study_year) =>
+		isValidInput(study_year, (value) => [1, 2, 3].includes(value));
 
-	function isValidActiveness(activeness) {
-		const value = [
-			"very high",
-			"high",
-			"medium",
-			"low",
-			"very low",
-			"inactive",
-		];
-		return value.includes(activeness.toLowerCase());
-	}
+	const isValidActiveness = (activeness) =>
+		isValidInput(activeness, (value) =>
+			["very high", "high", "medium", "low", "very low", "inactive"].includes(
+				value
+			)
+		);
+	// #endregion
 
 	return (
 		<div id="addMember" className="my-5">
@@ -131,7 +123,7 @@ const JoinRequestForm = () => {
 				<p className="muted">
 					Sent a request to join ITSC. Ensure your details provided are valid.
 				</p>
-				<Form noValidate validated={validated} onSubmit={sendJoinRequest}>
+				<Form noValidate onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom01">
 							<Form.Label>First name:</Form.Label>
@@ -139,10 +131,14 @@ const JoinRequestForm = () => {
 								type="text"
 								placeholder="First name"
 								required
-								isInvalid={!isValidName(form.first_name)}
+								isInvalid={!isValidFirstName(form.first_name)}
+								isValid={isValidFirstName(form.first_name)}
 								value={form.first_name}
 								onChange={(e) => updateForm({ first_name: e.target.value })}
 							/>
+							<Form.Control.Feedback type="invalid">
+								First name is required.
+							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 						<Form.Group as={Col} md="6" controlId="validationCustom02">
@@ -151,10 +147,14 @@ const JoinRequestForm = () => {
 								type="text"
 								placeholder="Last name"
 								required
-								isInvalid={!isValidName(form.last_name)}
+								isInvalid={!isValidLastName(form.last_name)}
+								isValid={isValidLastName(form.last_name)}
 								value={form.last_name}
 								onChange={(e) => updateForm({ last_name: e.target.value })}
 							/>
+							<Form.Control.Feedback type="invalid">
+								Last name is required.
+							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
@@ -166,6 +166,7 @@ const JoinRequestForm = () => {
 								placeholder="Email"
 								required
 								isInvalid={!isValidEmail(form.email)}
+								isValid={isValidEmail(form.email)}
 								value={form.email}
 								onChange={(e) => updateForm({ email: e.target.value })}
 							/>
@@ -181,6 +182,7 @@ const JoinRequestForm = () => {
 								placeholder="Contact number"
 								required
 								isInvalid={!isValidContactNumber(form.contact_number)}
+								isValid={isValidContactNumber(form.contact_number)}
 								value={form.contact_number}
 								onChange={(e) => updateForm({ contact_number: e.target.value })}
 							/>
@@ -191,13 +193,14 @@ const JoinRequestForm = () => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="4" controlId="validationCustom03">
+						<Form.Group as={Col} md="4" controlId="validationCustom05">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
 								placeholder="Admin number"
 								required
 								isInvalid={!isValidAdminNumber(form.admin_number)}
+								isValid={isValidAdminNumber(form.admin_number)}
 								value={form.admin_number}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
@@ -206,7 +209,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4">
+						<Form.Group as={Col} md="4" controlId="validationCustom06">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
@@ -225,8 +228,12 @@ const JoinRequestForm = () => {
 								<option>2</option>
 								<option>3</option>
 							</Form.Select>
+							<Form.Control.Feedback type="invalid">
+								Please select year of study.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4">
+						<Form.Group as={Col} md="4" controlId="validationCustom07">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"
@@ -245,6 +252,10 @@ const JoinRequestForm = () => {
 								<option>high</option>
 								<option>very high</option>
 							</Form.Select>
+							<Form.Control.Feedback type="invalid">
+								Please select activeness.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
 					<Button type="submit">Send request</Button>
