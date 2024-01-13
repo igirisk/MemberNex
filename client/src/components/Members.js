@@ -39,7 +39,7 @@ const MemberCard = (props) => {
 	);
 };
 
-// Member details
+// Member popup modal
 const MemberModal = ({ props, onClose }) => {
 	const [showEdit, setShowEdit] = useState(false);
 
@@ -72,7 +72,7 @@ const MemberModal = ({ props, onClose }) => {
 	);
 };
 
-// Member details
+// Member details popup content
 const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 	return (
 		<Row>
@@ -108,6 +108,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 	);
 };
 
+// Member edit form pop up content
 const MemberEdit = ({ member, closeEdit }) => {
 	const [form, setForm] = useState({
 		first_name: "",
