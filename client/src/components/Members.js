@@ -201,8 +201,16 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 
 	// #region Custom form validations
 	function isValidInput(value, validationCondition) {
-		const isValid = validationCondition(value);
-		return isValid;
+		// Check if the value is present before applying validation
+		const isInputPresent = value.trim() !== "";
+
+		// If input is present, apply the validation condition
+		if (isInputPresent) {
+			return validationCondition(value);
+		}
+
+		// If input is not present, consider it as valid
+		return true;
 	}
 
 	const isValidFirstName = (first_name) =>
@@ -259,7 +267,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={member.first_name}
-								required
 								isInvalid={!isValidFirstName(form.first_name)}
 								isValid={isValidFirstName(form.first_name)}
 								value={form.first_name}
@@ -275,7 +282,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={member.last_name}
-								required
 								isInvalid={!isValidLastName(form.last_name)}
 								isValid={isValidLastName(form.last_name)}
 								value={form.last_name}
@@ -293,7 +299,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="email"
 								placeholder={member.email}
-								required
 								isInvalid={!isValidEmail(form.email)}
 								isValid={isValidEmail(form.email)}
 								value={form.email}
@@ -311,7 +316,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="number"
 								placeholder={member.contact_number}
-								required
 								isInvalid={!isValidContactNumber(form.contact_number)}
 								isValid={isValidContactNumber(form.contact_number)}
 								value={form.contact_number}
@@ -327,7 +331,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={member.admin_number}
-								required
 								isInvalid={!isValidAdminNumber(form.admin_number)}
 								isValid={isValidAdminNumber(form.admin_number)}
 								value={form.admin_number}
@@ -345,7 +348,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Select
 								id="study_year"
 								value={form.study_year}
-								required
 								isValid={isValidYearOfStudy(form.study_year)}
 								isInvalid={!isValidYearOfStudy(form.study_year)}
 								onChange={(e) =>
@@ -369,7 +371,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Select
 								id="activeness"
 								value={form.activeness}
-								required
 								isValid={isValidActiveness(form.activeness)}
 								isInvalid={!isValidActiveness(form.activeness)}
 								onChange={(e) => updateForm({ activeness: e.target.value })}
@@ -393,7 +394,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Select
 								id="role"
 								value={form.role}
-								required
 								isValid={isValidRole(form.role)}
 								isInvalid={!isValidRole(form.role)}
 								onChange={(e) => updateForm({ role: e.target.value })}
