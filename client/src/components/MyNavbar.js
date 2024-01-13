@@ -36,7 +36,7 @@ const MyNavbar = () => {
 						</NavLink>
 						<NavLink
 							className="nav-link bg-danger text-white rounded"
-							to="/addMember"
+							to="/sendJoinRequest"
 						>
 							Logout
 						</NavLink>

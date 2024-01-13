@@ -63,11 +63,11 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 	};
 
 	return (
-		<Modal show={true} onHide={onClose}>
+		<Modal show={true} onHide={onClose} size="lg">
 			<Modal.Header closeButton className="px-4 pb-3">
 				<h2>Member</h2>
 			</Modal.Header>
-			<Modal.Body className="px-4">
+			<Modal.Body className="px-4 pb-4">
 				{showEdit ? (
 					<MemberEdit
 						member={props.member}
@@ -91,7 +91,7 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 	return (
 		<Row>
-			<Col md="4">
+			<Col md="3">
 				<img src="" alt="profile image" />
 				<Stack gap={1}>
 					<Button variant="success" onClick={showEdit}>
@@ -108,7 +108,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 					</Button>
 				</Stack>
 			</Col>
-			<Col md="8">
+			<Col md="9">
 				<Stack gap={1}>
 					<h2>{member.first_name + " " + member.last_name}</h2>
 					<p>Role: {member.role}</p>
@@ -182,7 +182,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					const res = await response.json();
 
 					// show unsuccessful notification
-					toast.error(`Failed to update member. Try again later.`, {
+					toast.error(`${res.error}.`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 					console.log(
@@ -199,52 +199,55 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 		}
 	}
 
-	// validations
-	function isValidEmail(email) {
+	// #region Custom form validations
+	function isValidInput(value, validationCondition) {
+		const isValid = validationCondition(value);
+		return isValid;
+	}
+
+	const isValidFirstName = (first_name) =>
+		isValidInput(first_name, (value) => value.trim() !== "");
+
+	const isValidLastName = (last_name) =>
+		isValidInput(last_name, (value) => value.trim() !== "");
+
+	const isValidEmail = (email) =>
 		// one or more characters that is not white space before @, contains @, one or more characters that is not white space after @, contains .,one or more chatacters that matches is not white space till the end of the str
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailRegex.test(email);
-	}
+		isValidInput(email, (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
 
-	function isValidAdminNumber(admin_number) {
-		const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
-		return adminNumberRegex.test(admin_number);
-	}
+	const isValidContactNumber = (contact_number) =>
+		// 8 digit contact number
+		isValidInput(contact_number, (value) => /^\d{8}$/.test(value.toString()));
 
-	function isValidContactNumber(contact_number) {
-		const contactNumberRegex = /^\d{8}$/; // 8 digit contact number
-		return contactNumberRegex.test(contact_number);
-	}
+	const isValidAdminNumber = (admin_number) =>
+		// 7 digit before a alphabet
+		isValidInput(admin_number, (value) => /^\d{7}[A-Za-z]$/.test(value));
 
-	function isValidYearOfStudy(study_year) {
-		const value = [1, 2, 3];
-		return value.includes(study_year);
-	}
+	const isValidYearOfStudy = (study_year) =>
+		isValidInput(study_year, (value) => [1, 2, 3].includes(value));
 
-	function isValidActiveness(activeness) {
-		const value = [
-			"very high",
-			"high",
-			"medium",
-			"low",
-			"very low",
-			"inactive",
-		];
-		return value.includes(activeness.toLowerCase());
-	}
+	const isValidActiveness = (activeness) =>
+		isValidInput(activeness, (value) =>
+			["very high", "high", "medium", "low", "very low", "inactive"].includes(
+				value
+			)
+		);
 
-	function isValidRole(role) {
-		const value = ["main com", "sub com", "member"];
-		return value.includes(role.toLowerCase());
-	}
+	const isValidRole = (role) =>
+		isValidInput(role, (value) =>
+			["main com", "sub com", "member"].includes(value)
+		);
+	// #endregion
 
 	return (
 		<Row>
-			<Col md="4">
-				<img src="" alt="profile image" />
-				<Button variant="success">Upload image</Button>
+			<Col md="3">
+				<Stack gap={1}>
+					<img src="" alt="profile image" />
+					<Button variant="success">Upload image</Button>
+				</Stack>
 			</Col>
-			<Col md="8">
+			<Col md="9">
 				<Form
 					noValidate
 					validated={validated}
@@ -256,9 +259,15 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={member.first_name}
+								required
+								isInvalid={!isValidFirstName(form.first_name)}
+								isValid={isValidFirstName(form.first_name)}
 								value={form.first_name}
 								onChange={(e) => updateForm({ first_name: e.target.value })}
 							/>
+							<Form.Control.Feedback type="invalid">
+								First name is required.
+							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 						<Form.Group as={Col} md="6" controlId="validationCustom02">
@@ -266,19 +275,27 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={member.last_name}
+								required
+								isInvalid={!isValidLastName(form.last_name)}
+								isValid={isValidLastName(form.last_name)}
 								value={form.last_name}
 								onChange={(e) => updateForm({ last_name: e.target.value })}
 							/>
+							<Form.Control.Feedback type="invalid">
+								Last name is required.
+							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom03">
+						<Form.Group as={Col} md="12" controlId="validationCustom03">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
 								placeholder={member.email}
+								required
 								isInvalid={!isValidEmail(form.email)}
+								isValid={isValidEmail(form.email)}
 								value={form.email}
 								onChange={(e) => updateForm({ email: e.target.value })}
 							/>
@@ -287,12 +304,16 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
+					</Row>
+					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom04">
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
 								placeholder={member.contact_number}
+								required
 								isInvalid={!isValidContactNumber(form.contact_number)}
+								isValid={isValidContactNumber(form.contact_number)}
 								value={form.contact_number}
 								onChange={(e) => updateForm({ contact_number: e.target.value })}
 							/>
@@ -301,14 +322,14 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-					</Row>
-					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom03">
+						<Form.Group as={Col} md="6" controlId="validationCustom05">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
 								placeholder={member.admin_number}
+								required
 								isInvalid={!isValidAdminNumber(form.admin_number)}
+								isValid={isValidAdminNumber(form.admin_number)}
 								value={form.admin_number}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
@@ -317,11 +338,14 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6">
+					</Row>
+					<Row className="mb-3">
+						<Form.Group as={Col} md="4" controlId="validationCustom06">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
 								value={form.study_year}
+								required
 								isValid={isValidYearOfStudy(form.study_year)}
 								isInvalid={!isValidYearOfStudy(form.study_year)}
 								onChange={(e) =>
@@ -335,12 +359,17 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 								<option>2</option>
 								<option>3</option>
 							</Form.Select>
+							<Form.Control.Feedback type="invalid">
+								Please select year of study.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6">
+						<Form.Group as={Col} md="4" controlId="validationCustom07">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"
 								value={form.activeness}
+								required
 								isValid={isValidActiveness(form.activeness)}
 								isInvalid={!isValidActiveness(form.activeness)}
 								onChange={(e) => updateForm({ activeness: e.target.value })}
@@ -354,14 +383,19 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 								<option>high</option>
 								<option>very high</option>
 							</Form.Select>
+							<Form.Control.Feedback type="invalid">
+								Please select activeness.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6">
+						<Form.Group as={Col} md="4" controlId="validationCustom08">
 							<Form.Label>Role:</Form.Label>
 							<Form.Select
-								id="activeness"
+								id="role"
 								value={form.role}
-								isValid={isValidRole(form.role)}
-								isInvalid={!isValidRole(form.role)}
+								required
+								isValid={isValidActiveness(form.role)}
+								isInvalid={!isValidActiveness(form.role)}
 								onChange={(e) => updateForm({ role: e.target.value })}
 							>
 								<option value="" disabled>
@@ -371,6 +405,10 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 								<option>sub com</option>
 								<option>main com</option>
 							</Form.Select>
+							<Form.Control.Feedback type="invalid">
+								Please select activeness.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
 					<Stack direction="horizontal" gap={3}>
