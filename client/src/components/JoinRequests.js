@@ -102,7 +102,7 @@ const JoinRequestDetails = ({
 							<h2>{joinRequest.first_name + " " + joinRequest.last_name}</h2>
 							<p>Email: {joinRequest.email}</p>
 							<p>Contact number: {joinRequest.contact_number}</p>
-							<p>Admin number:{joinRequest.admin_number}</p>
+							<p>Admin number: {joinRequest.admin_number}</p>
 							<p>Year of study: {joinRequest.study_year}</p>
 							<p>Activeness: {joinRequest.activeness}</p>
 						</Stack>
@@ -116,6 +116,7 @@ const JoinRequestDetails = ({
 const JoinRequests = ({ setReload }) => {
 	const [joinRequests, setJoinRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
 	const handleUpdate = () => {
 		// Call the callback function to trigger the useEffect in Members
@@ -141,8 +142,10 @@ const JoinRequests = ({ setReload }) => {
 						`Failed to get join requests.
 						${res.error}, details: ${res.details}`
 					);
+					setError(`Failed to get join requests. Try again later.`);
 				}
 			} catch (error) {
+				setError(`Failed to get join requests. Try again later.`);
 				toast.error(`Failed to get join requests. Try again later.`, {
 					position: toast.POSITION.TOP_RIGHT,
 				});
@@ -204,45 +207,59 @@ const JoinRequests = ({ setReload }) => {
 				activeness: joinRequest.activeness,
 			};
 
-			// Create new member and remove join request simultaneously
-			const [memberResponse, joinRequestResponse] = await Promise.all([
-				fetch("http://localhost:3050/member", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(newMember),
-				}),
-				fetch(`http://localhost:3050/joinRequest/${joinRequest._id}`, {
-					method: "DELETE",
-				}),
-			]);
+			// Create new member
+			const memberResponse = await fetch("http://localhost:3050/member", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(newMember),
+			});
 
-			if (memberResponse.ok && joinRequestResponse.ok) {
-				// Trigger the update of Members component
-				handleUpdate();
-				// Show success notification
-				toast.success(`Join request accepted`, {
-					position: toast.POSITION.TOP_RIGHT,
-				});
-
-				// Update the state
-				const newJoinRequest = joinRequests.filter(
-					(el) => el._id !== joinRequest._id
+			// Check if member creation is successful
+			if (memberResponse.ok) {
+				// Remove join request if member creation is successful
+				const joinRequestResponse = await fetch(
+					`http://localhost:3050/joinRequest/${joinRequest._id}`,
+					{
+						method: "DELETE",
+					}
 				);
-				setJoinRequests(newJoinRequest);
-			} else {
-				const [memberRes, joinRequestRes] = await Promise.all([
-					memberResponse.json(),
-					joinRequestResponse.json(),
-				]);
 
-				// show unsuccessful notification
+				if (joinRequestResponse.ok) {
+					// Trigger the update of Members component
+					handleUpdate();
+
+					// Show success notification
+					toast.success(`Join request accepted`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+
+					// Update the state
+					const newJoinRequest = joinRequests.filter(
+						(el) => el._id !== joinRequest._id
+					);
+					setJoinRequests(newJoinRequest);
+				} else {
+					const res = await joinRequestResponse.json();
+
+					// Show unsuccessful notification
+					toast.error(`Failed to delete join request. Try again later.`, {
+						position: toast.POSITION.TOP_RIGHT,
+					});
+					console.log(
+						`Failed to delete join request.
+			${res.error}, details: ${res.details}`
+					);
+				}
+			} else {
+				const res = await memberResponse.json();
+
+				// Show unsuccessful notification
 				toast.error(`Failed to accept join request. Try again later.`, {
 					position: toast.POSITION.TOP_RIGHT,
 				});
 				console.log(
 					`Failed to accept join request. 
-					Member Error: ${memberRes.error}, details: ${memberRes.details} 
-					Join Request Error: ${joinRequestRes.error}, details: ${joinRequestRes.details}`
+		  Member Error: ${res.error}, details: ${res.details}`
 				);
 			}
 		} catch (error) {
@@ -277,6 +294,8 @@ const JoinRequests = ({ setReload }) => {
 				<h2 className="text-start">Join requests</h2>
 				{loading ? (
 					<p>Loading...</p>
+				) : error ? (
+					<p>{error}</p>
 				) : joinRequests.length === 0 ? (
 					<p>There is currently no join request</p>
 				) : (

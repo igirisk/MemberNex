@@ -1,0 +1,52 @@
+-----Manual testing instruction-----
+
+// JoinRequestForm
+http://localhost:3000/sendJoinRequest:
+
+First name, Last name
+validation: input empty
+invalid: First name/ Last namee is requried.
+valid: Looks good!
+
+Email 
+validation: one or more characters that is not white space before @, contains @, one or more characters that is not white space after @, contains .,one or more chatacters that matches is not white space till the end of the str
+invalid: Please provide a valid email.
+valid: Looks good!
+
+Contact Number
+validation: 8 digit
+invalid: Please provide a valid contact number.
+valid: Looks good!
+
+Admin Number
+validation: 7 digit before a alphabet
+invalid: Please provide a valid Admin number.
+valid: Looks good!
+
+Year of study, Activeness
+validation: drop down selection
+invalid: Please select year of study/activeness.
+valid: Looks good!
+
+Send request button
+all form input valid to submit
+toast notification successful: Join request sent successfully
+admin number already in database: toast notification error "Admin number already registered, try another."(check console for more details)
+other errors: toast notification error "Failed to send join request. Try again later."(check console for more details)
+
+
+// JoinRequest
+http://localhost:3000/home:
+
+Home page on load, send api request to mongodb to get join request. 
+While waiting for response from data base, display in div loading. 
+unsuccessful: toast notification error and display in div "Failed to get join requests. Try again later."
+successful: disply the frist and last name of the respective request in cards with accept and reject button.
+
+Clicking on the card will have a popup modal showing the first name, last name, email, contact number, admin number, year of study and activeness
+
+Click on accept in card and popup modalto accept join request
+unsuccessful: toast notification error "Failed to accept Join request. Try again later"(check console for more details)
+successful: toast notification "success Join request accepted."
+
+

@@ -428,6 +428,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 const Members = (relaod) => {
 	const [members, setMembers] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const [updateTrigger, setUpdateTrigger] = useState(false);
 
 	// Fetch all join requests from the database
@@ -449,12 +450,14 @@ const Members = (relaod) => {
 						`Failed to get members.
 						${res.error}, details: ${res.details}`
 					);
+					setError(`Failed to get members. Try again later.`);
 				}
 			} catch (error) {
 				toast.error(`Failed to get members. Try again later.`, {
 					position: toast.POSITION.TOP_RIGHT,
 				});
 				console.error("Error getting members:", error);
+				setError(`Failed to get members. Try again later.`);
 			} finally {
 				// Set loading to false once data is fetched (whether successful or not)
 				setLoading(false);
@@ -522,6 +525,8 @@ const Members = (relaod) => {
 				<h2 className="text-start">Members</h2>
 				{loading ? (
 					<p>Loading...</p>
+				) : error ? (
+					<p>{error}</p>
 				) : members.length === 0 ? (
 					<p>There is currently no member</p>
 				) : (
