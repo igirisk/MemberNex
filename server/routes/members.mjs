@@ -11,7 +11,7 @@ const successResponse = (message, data = null) => {
 const errorResponse = (message, details = null) => {
 	return { success: false, error: message, details };
 };
-
+// #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(member) {
 	for (let key in member) {
@@ -68,6 +68,7 @@ function isValidRole(role) {
 	const value = ["main com", "sub com", "member"];
 	return value.includes(role.toLowerCase());
 }
+// #endregion
 
 // Connect to the MongoDB database and create a unique index on the "adminno" field
 const initDatabase = async () => {

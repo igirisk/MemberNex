@@ -54,14 +54,25 @@ const JoinRequestForm = () => {
 				} else {
 					const res = await response.json();
 
-					// show unsuccessful notification
-					toast.error(`${res.error}`, {
-						position: toast.POSITION.TOP_RIGHT,
-					});
-					console.log(
-						`Failed to submit join request.
+					if (res.error === "Admin number already registered, try another.") {
+						// show unsuccessful notification
+						toast.error(`${res.error}`, {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						console.log(
+							`Failed to submit join request.
 						${res.error}, details: ${res.details}`
-					);
+						);
+					} else {
+						// show unsuccessful notification
+						toast.error(`Failed to send join request. Try again later.`, {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						console.log(
+							`Failed to submit join request.
+						${res.error}, details: ${res.details}`
+						);
+					}
 				}
 			} catch (error) {
 				toast.error(`Failed to send join request. Try again later.`, {
