@@ -1,42 +1,36 @@
-# MemberNex CCA Management Application (MERN Stack) - README
+# MemberNex
 
-## Setup App
+creating a cca management application with MERN stack for FWEB project
 
-# Install dependencies for the root
-npm install
+## Setup this project
 
-# Navigate to the client directory
-cd client
+```powershell
+# Installing dependencies
+npm install # install modules for root
+cd client # go to client directory
+npm install # install modules for client
+cd .. # back to root directory
+cd server # go to server directory
+npm install # install modules for server
+```
 
-# Install client-specific modules
-npm install
+## Run app
 
-# Go back to the root directory
-cd ..
+```powershell
+npm start # run backend and frontend
+```
 
-# Navigate to the server directory
-cd server
+## Run backend
 
-# Install server-specific modules
-npm install
+```powershell
+cd server # go to server directory
+npm start # run backend mongoDB server
+```
 
-## Run App
+# Run frontend
 
-# Run both backend and frontend concurrently
-npm start
+```powershell
+cd client # go to client directory
+npm start # run frontend react
+```
 
-## Run Backend
-
-# Navigate to the server directory
-cd server
-
-# Start the backend server with MongoDB
-npm start
-
-## Run Frontend
-
-# Navigate to the client directory
-cd client
-
-# Start the frontend using React
-npm start
