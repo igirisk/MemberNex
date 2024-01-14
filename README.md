@@ -9,9 +9,10 @@ creating a cca management application with MERN stack for FWEB project
 npm install # install modules for root
 cd client # go to client directory
 npm install # install modules for client
-cd .. # back to root directory
+cd .. # go back to root directory
 cd server # go to server directory
 npm install # install modules for server
+cd .. # go back to the root directory
 ```
 
 ## Run app
@@ -25,6 +26,7 @@ npm start # run backend and frontend
 ```powershell
 cd server # go to server directory
 npm start # run backend mongoDB server
+cd .. # go back to the root directory
 ```
 
 # Run frontend
@@ -32,5 +34,6 @@ npm start # run backend mongoDB server
 ```powershell
 cd client # go to client directory
 npm start # run frontend react
+cd .. # go back to the root directory
 ```
 
