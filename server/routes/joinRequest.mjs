@@ -43,7 +43,7 @@ function isValidContactNumber(contact_number) {
 }
 
 function isValidAdminNumber(admin_number) {
-	const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 6 digit before a alphabet
+	const adminNumberRegex = /^\d{7}[A-Za-z]$/; // 7 digit before a alphabet
 	return adminNumberRegex.test(admin_number);
 }
 
