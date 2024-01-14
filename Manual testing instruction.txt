@@ -1,0 +1,85 @@
+manual testing instructions
+
+**JoinRequestForm:**
+- **URL:** http://localhost:3000/sendJoinRequest
+
+  - **First name, Last name**
+    - *Validation:* Input cannot be empty.
+    - *Invalid:* First name/Last name is required.
+    - *Valid:* Looks good!
+
+  - **Email**
+    - *Validation:* One or more characters before '@', contains '@', one or more characters after '@', contains '.', and no white spaces till the end.
+    - *Invalid:* Please provide a valid email.
+    - *Valid:* Looks good!
+
+  - **Contact Number**
+    - *Validation:* Must be an 8-digit number.
+    - *Invalid:* Please provide a valid contact number.
+    - *Valid:* Looks good!
+
+  - **Admin Number**
+    - *Validation:* 7 digits followed by an alphabet.
+    - *Invalid:* Please provide a valid Admin number.
+    - *Valid:* Looks good!
+
+  - **Year of study, Activeness**
+    - *Validation:* Drop-down selection.
+    - *Invalid:* Please select year of study/activeness.
+    - *Valid:* Looks good!
+
+  - **Send request button**
+    - *Conditions:* All form inputs must be valid to submit.
+    - *Unsuccessful:*
+      - Admin number already in the database: Toast notification error "Admin number already registered, try another." (Check console for more details).
+      - Other errors: Toast notification error "Failed to send join request. Try again later." (Check console for more details).
+    - *Success:* Toast notification successful "Join request sent successfully." Add join request to MongoDB and reset the form.
+
+**JoinRequests and Members:**
+- **URL:** http://localhost:3000/home
+
+  - **Members**
+    - *On page load:* Send API request to MongoDB to get members.
+    - *While waiting:* Display in div "Loading..."
+    - *Unsuccessful:* Toast notification error and display in div "Failed to get members. Try again later" (Check console for more details).
+    - *Successful:* Display the first and last name of the respective member in a card with their respective roles.
+
+    - **Member Card (Click)**
+      - Popup modal showing edit and delete buttons on the left and member details (first name, last name, role, email, contact number, admin number, year of study, activeness, and role) on the right.
+
+      - **Delete Member Button**
+        - *Unsuccessful:* Toast notification error "Failed to delete member. Try again later" (Check console for more details).
+        - *Successful:* Toast notification success "Member deleted." Remove member from MongoDB and Members component.
+
+      - **Edit Button**
+        - *Clicking on edit:* Change the popup modal body to the edit member form. On the left will be the upload image button (not done), and on the right will be the form input fields to edit member details with cancel and update buttons at the bottom.
+
+      - **Cancel Button**
+        - *Clicking on cancel:* Change the popup modal body back to showing edit and delete buttons on the left and member details on the right.
+
+      - **Update Button**
+        - *Validation:* Forms validate only when there is input in the respective fields (Refer back to JoinRequestForm validation). Role validation is similar to Year of study, Activeness validation of JoinRequestForm.
+        - *All form fields must be valid to submit.* Only fields with input will be updated.
+        - *Unsuccessful:*
+          - Admin number already in the database: Toast notification error "Admin number already registered, try another" (Check console for more details).
+          - Other errors: Toast notification error "Failed to update member. Try again later" (Check console for more details).
+        - *Success:* Toast notification successful "Member updated successfully." Update member in MongoDB, reset form, and reload Members component to get the new added member.
+
+  - **JoinRequests**
+    - *On page load:* Send API request to MongoDB to get join requests.
+    - *While waiting:* Display in div "Loading..."
+    - *Unsuccessful:* Toast notification error and display in div "Failed to get join requests. Try again later" (Check console for more details).
+    - *Successful:* Display the first and last name of the respective request in cards with accept and reject buttons.
+
+      - **Join Requests Card (Click)**
+        - Popup modal showing accept and reject buttons on the left and join request details (first name, last name, email, contact number, admin number, year of study, and activeness) on the right.
+
+        - **Accept Join Request**
+          - *Click on accept button:* Popup modal to accept join request.
+          - *Unsuccessful:* Toast notification error "Failed to accept Join request. Try again later" (Check console for more details).
+          - *Successful:* Toast notification success "Join request accepted." Add new member while removing join request from MongoDB. Join request will be removed from JoinRequests component, and Members component will be reloaded to get the new added member.
+
+        - **Reject Join Request**
+          - *Click on reject button:* Popup modal to reject join request.
+          - *Unsuccessful:* Toast notification error "Failed to reject Join request. Try again later" (Check console for more details).
+          - *Successful:* Toast notification success "Join request rejected." Remove join request from MongoDB. Join request will also be removed from JoinRequests component.

@@ -114,7 +114,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 					<p>Role: {member.role}</p>
 					<p>Email: {member.email}</p>
 					<p>Contact number: {member.contact_number}</p>
-					<p>Admin number:{member.admin_number}</p>
+					<p>Admin number: {member.admin_number}</p>
 					<p>Year of study: {member.study_year}</p>
 					<p>Activeness: {member.activeness}</p>
 				</Stack>
@@ -175,20 +175,31 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					sendReload();
 
 					// Show success notification
-					toast.success(`Member updated successfully`, {
+					toast.success(`Member updated successfully.`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 				} else {
 					const res = await response.json();
 
-					// show unsuccessful notification
-					toast.error(`${res.error}.`, {
-						position: toast.POSITION.TOP_RIGHT,
-					});
-					console.log(
-						`Failed to update member.
+					if (res.error === "Admin number already registered, try another.") {
+						// show unsuccessful notification
+						toast.error(`${res.error}.`, {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						console.log(
+							`Failed to update member.
 						${res.error}, details: ${res.details}`
-					);
+						);
+					} else {
+						// show unsuccessful notification
+						toast.error(`Failed to update member. Try again later.`, {
+							position: toast.POSITION.TOP_RIGHT,
+						});
+						console.log(
+							`Failed to submit join request.
+						${res.error}, details: ${res.details}`
+						);
+					}
 				}
 			} catch (error) {
 				toast.error(`Failed to update member. Try again later.`, {
