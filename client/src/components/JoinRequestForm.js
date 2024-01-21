@@ -137,10 +137,11 @@ const JoinRequestForm = () => {
 				<Form noValidate onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
 						<Form.Group as={Col} md="6" controlId="validationCustom01">
+							<form action="/upload" class="dropzone" id="myDropzone"></form>
 							<Form.Label>First name:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="First name"
+								placeholder="john"
 								required
 								isInvalid={!isValidFirstName(form.first_name)}
 								isValid={isValidFirstName(form.first_name)}
@@ -156,7 +157,7 @@ const JoinRequestForm = () => {
 							<Form.Label>Last name:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="Last name"
+								placeholder="tan"
 								required
 								isInvalid={!isValidLastName(form.last_name)}
 								isValid={isValidLastName(form.last_name)}
@@ -174,7 +175,7 @@ const JoinRequestForm = () => {
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
-								placeholder="Email"
+								placeholder="example@snailmail.com"
 								required
 								isInvalid={!isValidEmail(form.email)}
 								isValid={isValidEmail(form.email)}
@@ -190,7 +191,7 @@ const JoinRequestForm = () => {
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
-								placeholder="Contact number"
+								placeholder="88776969"
 								required
 								isInvalid={!isValidContactNumber(form.contact_number)}
 								isValid={isValidContactNumber(form.contact_number)}
@@ -208,7 +209,7 @@ const JoinRequestForm = () => {
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="Admin number"
+								placeholder="1234567A"
 								required
 								isInvalid={!isValidAdminNumber(form.admin_number)}
 								isValid={isValidAdminNumber(form.admin_number)}
