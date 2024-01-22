@@ -7,6 +7,9 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
+import React from "react";
+import MyDropzone from "./MyDropzone";
+
 const JoinRequestForm = () => {
 	const [form, setForm] = useState({
 		first_name: "",
@@ -17,6 +20,19 @@ const JoinRequestForm = () => {
 		study_year: "",
 		activeness: "",
 	});
+
+	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+
+	// Handle files change
+	const handleFilesChange = (files) => {
+		setUploadedFiles(files);
+	};
+
+	// Handle form submission
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		// Perform your form submission logic here, including the uploaded files (uploadedFiles)
+	};
 
 	function updateForm(value) {
 		setForm((prev) => ({ ...prev, ...value }));
@@ -136,8 +152,13 @@ const JoinRequestForm = () => {
 				</p>
 				<Form noValidate onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom01">
-							<form action="/upload" class="dropzone" id="myDropzone"></form>
+						<Form.Group as={Col} md="12" controlId="file-dropzone">
+							<Form.Label>Profile image:</Form.Label>
+							<MyDropzone onFilesChange={handleFilesChange} />
+						</Form.Group>
+					</Row>
+					<Row className="mb-3">
+						<Form.Group as={Col} md="6" controlId="firstName">
 							<Form.Label>First name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -153,7 +174,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom02">
+						<Form.Group as={Col} md="6" controlId="lastName">
 							<Form.Label>Last name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -171,7 +192,7 @@ const JoinRequestForm = () => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom03">
+						<Form.Group as={Col} md="6" controlId="email">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
@@ -187,7 +208,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom04">
+						<Form.Group as={Col} md="6" controlId="contactNumber">
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
@@ -205,7 +226,7 @@ const JoinRequestForm = () => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="4" controlId="validationCustom05">
+						<Form.Group as={Col} md="4" controlId="adminNumber">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
@@ -221,7 +242,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom06">
+						<Form.Group as={Col} md="4" controlId="yearOfStudy">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
@@ -245,7 +266,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom07">
+						<Form.Group as={Col} md="4" controlId="activeness">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"

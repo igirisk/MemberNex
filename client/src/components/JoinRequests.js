@@ -293,7 +293,9 @@ const JoinRequests = ({ setReload }) => {
 			<Container>
 				<h2 className="text-start">Join requests</h2>
 				{loading ? (
-					<p>Loading...</p>
+					<p>
+						<i class="fas fa-spinner fa-pulse"></i> Loading...
+					</p>
 				) : error ? (
 					<p>{error}</p>
 				) : joinRequests.length === 0 ? (

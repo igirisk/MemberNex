@@ -273,7 +273,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					onSubmit={(e) => updateMember(e, member._id, sendReload)}
 				>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom01">
+						<Form.Group as={Col} md="6" controlId="firstName">
 							<Form.Label>First name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -288,7 +288,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom02">
+						<Form.Group as={Col} md="6" controlId="lastName">
 							<Form.Label>Last name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -305,7 +305,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="12" controlId="validationCustom03">
+						<Form.Group as={Col} md="12" controlId="email">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
@@ -322,7 +322,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom04">
+						<Form.Group as={Col} md="6" controlId="contactNumber">
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
@@ -337,7 +337,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom05">
+						<Form.Group as={Col} md="6" controlId="adminNumber">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
@@ -354,7 +354,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="4" controlId="validationCustom06">
+						<Form.Group as={Col} md="4" controlId="yearOfStudy">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
@@ -377,7 +377,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom07">
+						<Form.Group as={Col} md="4" controlId="activeness">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"
@@ -400,7 +400,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom08">
+						<Form.Group as={Col} md="4" controlId="role">
 							<Form.Label>Role:</Form.Label>
 							<Form.Select
 								id="role"
@@ -535,7 +535,9 @@ const Members = (relaod) => {
 			<Container>
 				<h2 className="text-start">Members</h2>
 				{loading ? (
-					<p>Loading...</p>
+					<p>
+						<i class="fas fa-spinner fa-pulse"></i> Loading...
+					</p>
 				) : error ? (
 					<p>{error}</p>
 				) : members.length === 0 ? (
