@@ -100,6 +100,7 @@ router.post("/", async (req, res) => {
 			admin_number: req.body.admin_number,
 			study_year: req.body.study_year,
 			activeness: req.body.activeness,
+			profile_image: req.body.profile_image,
 		};
 
 		if (areFieldsEmpty(newJoinRequest)) {

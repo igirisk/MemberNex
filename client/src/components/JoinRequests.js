@@ -23,7 +23,7 @@ const JoinRequestCard = (props) => {
 		<>
 			<Col>
 				<Card style={{ width: "11rem" }} onClick={handleShowDetails}>
-					<Card.Img variant="top" src="holder.js/100px180" />
+					<Card.Img variant="top" src={props.joinRequest.profile_image} />
 					<Card.Body>
 						<Card.Title>
 							{props.joinRequest.first_name + " " + props.joinRequest.last_name}

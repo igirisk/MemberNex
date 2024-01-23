@@ -43,12 +43,21 @@ const MyDropzone = ({ onFilesChange }) => {
 				"image/*": [],
 			},
 			onDrop: (acceptedFiles) => {
-				console.log(acceptedFiles.length);
 				if (acceptedFiles.length !== 1) {
 					setError("Too many files");
 					setFiles([]); // Clear files if more than one file is uploaded
 					return;
 				} else {
+					// Check if the file size exceeds the limit (e.g., 5 MB)
+					const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+					const file = acceptedFiles[0];
+
+					if (file.size > maxSizeInBytes) {
+						setError("File size exceeds the limit (5 MB)");
+						setFiles([]); // Clear files if the size exceeds the limit
+						return;
+					}
+
 					setFiles(
 						acceptedFiles.map((file) =>
 							Object.assign(file, {
@@ -59,7 +68,7 @@ const MyDropzone = ({ onFilesChange }) => {
 					setError(null);
 				}
 			},
-
+			maxSize: 5 * 1024 * 1024, // 5 MB
 			maxFiles: 1,
 		});
 
@@ -115,7 +124,7 @@ const MyDropzone = ({ onFilesChange }) => {
 								<b>Click to browse</b>
 								<br />
 								<small>
-									<small>Maximum 1 file</small>
+									<small>Max 1 file(5MB)</small>
 								</small>
 							</>
 						)}

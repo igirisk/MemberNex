@@ -19,6 +19,7 @@ const JoinRequestForm = () => {
 		admin_number: "",
 		study_year: "",
 		activeness: "",
+		profile_image: "",
 	});
 
 	const [uploadedFiles, setUploadedFiles] = React.useState([]);
@@ -26,12 +27,24 @@ const JoinRequestForm = () => {
 	// Handle files change
 	const handleFilesChange = (files) => {
 		setUploadedFiles(files);
+
+		// If files contain an image, convert it to base64 and update the form state
+		if (files.length === 1) {
+			convertImageToBase64(files[0]).then((base64Image) => {
+				setForm((prevForm) => ({
+					...prevForm,
+					profile_image: base64Image,
+				}));
+			});
+		}
 	};
 
-	// Handle form submission
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		// Perform your form submission logic here, including the uploaded files (uploadedFiles)
+	const convertImageToBase64 = async (file) => {
+		return new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result);
+			reader.readAsDataURL(file);
+		});
 	};
 
 	function updateForm(value) {
@@ -42,8 +55,16 @@ const JoinRequestForm = () => {
 		e.preventDefault();
 		const formElement = e.currentTarget;
 
+		// Attach the base64-encoded image data to the form
+		if (uploadedFiles.length === 1) {
+			const base64Image = await convertImageToBase64(uploadedFiles[0]);
+			setForm((prevForm) => ({ ...prevForm, profile_image: base64Image }));
+		}
+
 		if (formElement.checkValidity()) {
 			const newJoinRequest = { ...form };
+
+			console.log(newJoinRequest);
 
 			try {
 				const response = await fetch("http://localhost:3050/joinRequest", {
@@ -61,6 +82,7 @@ const JoinRequestForm = () => {
 						admin_number: "",
 						study_year: "",
 						activeness: "",
+						profile_image: "",
 					});
 
 					// Show success notification
