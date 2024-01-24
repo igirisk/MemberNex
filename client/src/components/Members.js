@@ -25,7 +25,7 @@ const MemberCard = (props) => {
 		<>
 			<Col>
 				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
-					<Card.Img variant="top" src="holder.js/100px180" />
+					<Card.Img variant="top" src={props.member.profile_image} />
 					<Card.Body>
 						<Card.Title>
 							{props.member.first_name + " " + props.member.last_name}
@@ -63,8 +63,8 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 	};
 
 	return (
-		<Modal show={true} onHide={onClose} size="lg">
-			<Modal.Header closeButton className="px-4 pb-3">
+		<Modal show={true} onHide={onClose} size="md">
+			<Modal.Header closeButton className="px-4">
 				<h2>Member</h2>
 			</Modal.Header>
 			<Modal.Body className="px-4 pb-4">
@@ -91,8 +91,12 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 	return (
 		<Row>
-			<Col md="3">
-				<img src="" alt="profile image" />
+			<Col md="4">
+				<img
+					src={member.profile_image}
+					alt="profile image"
+					className="rounded img-fluid mb-2"
+				/>
 				<Stack gap={1}>
 					<Button variant="success" onClick={showEdit}>
 						Edit
@@ -108,7 +112,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 					</Button>
 				</Stack>
 			</Col>
-			<Col md="9">
+			<Col md="8">
 				<Stack gap={1}>
 					<h2>{member.first_name + " " + member.last_name}</h2>
 					<p>Role: {member.role}</p>
