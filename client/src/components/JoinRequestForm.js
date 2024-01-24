@@ -21,7 +21,7 @@ const JoinRequestForm = () => {
 		activeness: "",
 		profile_image: "",
 	});
-
+	const [fileError, setFileError] = useState(false);
 	const [uploadedFiles, setUploadedFiles] = React.useState([]);
 
 	// Handle files change
@@ -36,6 +36,12 @@ const JoinRequestForm = () => {
 					profile_image: base64Image,
 				}));
 			});
+		}
+		if (isValidProfileImage(form.profile_image)) {
+			setFileError(false); // Reset file error state
+		} else {
+			// Handle invalid image case
+			setFileError(true); // Set file error state
 		}
 	};
 
@@ -61,10 +67,11 @@ const JoinRequestForm = () => {
 			setForm((prevForm) => ({ ...prevForm, profile_image: base64Image }));
 		}
 
-		if (formElement.checkValidity()) {
+		if (
+			formElement.checkValidity() &&
+			isValidProfileImage(form.profile_image)
+		) {
 			const newJoinRequest = { ...form };
-
-			console.log(newJoinRequest);
 
 			try {
 				const response = await fetch("http://localhost:3050/joinRequest", {
@@ -103,7 +110,7 @@ const JoinRequestForm = () => {
 						);
 					} else {
 						// show unsuccessful notification
-						toast.error(`Failed to send join request. Try again later.`, {
+						toast.error(`${res.error}`, {
 							position: toast.POSITION.TOP_RIGHT,
 						});
 						console.log(
@@ -118,6 +125,10 @@ const JoinRequestForm = () => {
 				});
 				console.error("Error sending join request:", error);
 			}
+		} else {
+			toast.error(`All fields required!`, {
+				position: toast.POSITION.TOP_RIGHT,
+			});
 		}
 	}
 
@@ -154,6 +165,11 @@ const JoinRequestForm = () => {
 				value
 			)
 		);
+
+	const isValidProfileImage = (profile_image) =>
+		isValidInput(profile_image, (value) =>
+			/^data:image\/(jpeg|jpg|png);base64,/.test(value)
+		);
 	// #endregion
 
 	return (
@@ -177,6 +193,10 @@ const JoinRequestForm = () => {
 						<Form.Group as={Col} md="12" controlId="file-dropzone">
 							<Form.Label>Profile image:</Form.Label>
 							<MyDropzone onFilesChange={handleFilesChange} />
+							{fileError && (
+								<div class="text-danger">Please upload a valid image file</div>
+							)}
+							{!fileError && <div class="text-success">Looks good!</div>}
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">

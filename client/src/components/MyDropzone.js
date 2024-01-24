@@ -48,12 +48,11 @@ const MyDropzone = ({ onFilesChange }) => {
 					setFiles([]); // Clear files if more than one file is uploaded
 					return;
 				} else {
-					// Check if the file size exceeds the limit (e.g., 5 MB)
-					const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+					const maxSizeInBytes = 3 * 1024 * 1024; // 3 MB
 					const file = acceptedFiles[0];
 
 					if (file.size > maxSizeInBytes) {
-						setError("File size exceeds the limit (5 MB)");
+						setError("File size exceeds the limit (3 MB)");
 						setFiles([]); // Clear files if the size exceeds the limit
 						return;
 					}
@@ -68,7 +67,7 @@ const MyDropzone = ({ onFilesChange }) => {
 					setError(null);
 				}
 			},
-			maxSize: 5 * 1024 * 1024, // 5 MB
+			maxSize: 3 * 1024 * 1024, // 3 MB
 			maxFiles: 1,
 		});
 
@@ -98,40 +97,38 @@ const MyDropzone = ({ onFilesChange }) => {
 	}, [acceptedFiles, onFilesChange]);
 
 	return (
-		<Container className="py-1">
-			<div {...getRootProps()}>
-				<input {...getInputProps()} />
-				<Stack
-					direction="horizontal"
-					className="border rounded justify-content-center"
-				>
-					<div className="p-2">
-						<aside style={thumbsContainer}>{thumbs}</aside>
-						{/* Render the icon only if there are no files */}
-						{error && <Alert variant="danger">{error}</Alert>}
-						{!error && files.length === 0 && (
-							<i className="fas fa-cloud-upload fa-4x py-3"></i>
-						)}
-					</div>
+		<div {...getRootProps()}>
+			<input {...getInputProps()} />
+			<Stack
+				direction="horizontal"
+				className="border rounded justify-content-center"
+			>
+				<div className="p-2">
+					<aside style={thumbsContainer}>{thumbs}</aside>
+					{/* Render the icon only if there are no files */}
+					{error && <Alert variant="danger">{error}</Alert>}
+					{!error && files.length === 0 && (
+						<i className="fas fa-cloud-upload fa-4x py-3"></i>
+					)}
+				</div>
 
-					<div className="p-2 text-center justify-content-center">
-						{isDragActive ? (
-							<b>Drop file here</b>
-						) : (
-							<>
-								<b>Drop an image</b>
-								<p className="m-0">or</p>
-								<b>Click to browse</b>
-								<br />
-								<small>
-									<small>Max 1 file(5MB)</small>
-								</small>
-							</>
-						)}
-					</div>
-				</Stack>
-			</div>
-		</Container>
+				<div className="p-2 text-center justify-content-center">
+					{isDragActive ? (
+						<b>Drop file here</b>
+					) : (
+						<>
+							<b>Drop an image</b>
+							<p className="m-0">or</p>
+							<b>Click to browse</b>
+							<br />
+							<small>
+								<small>Max 1 file(3MB)</small>
+							</small>
+						</>
+					)}
+				</div>
+			</Stack>
+		</div>
 	);
 };
 

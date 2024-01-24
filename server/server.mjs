@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 // Increase payload size limit to 10 megabytes
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "5mb" }));
 
 // member router for member api endpoints
 app.use("/member", members);

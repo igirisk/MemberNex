@@ -12,6 +12,10 @@ const errorResponse = (message, details = null) => {
 	return { success: false, error: message, details };
 };
 
+// Funtion to set first character in string to uppercase
+function firstUpperCase(str) {
+	return str[0].toUpperCase() + str.slice(1).toLowerCase();
+}
 // #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(member) {
@@ -24,11 +28,6 @@ function areFieldsEmpty(member) {
 		}
 	}
 	return false; // No empty fields found
-}
-
-// Funtion to set first character in string to uppercase
-function firstUpperCase(str) {
-	return str[0].toUpperCase() + str.slice(1).toLowerCase();
 }
 
 function isValidEmail(email) {
@@ -55,6 +54,13 @@ function isValidYearOfStudy(study_year) {
 function isValidActiveness(activeness) {
 	const value = ["very high", "high", "medium", "low", "very low", "inactive"];
 	return value.includes(activeness.toLowerCase());
+}
+
+function isValidProfileImage(profile_image) {
+	// Regular expression to check if the string is a valid base64-encoded image
+	const base64Regex = /^data:image\/(jpeg|jpg|png);base64,/;
+
+	return base64Regex.test(profile_image);
 }
 // #endregion
 
@@ -121,6 +127,10 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newJoinRequest.activeness)) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
+		} else if (!isValidProfileImage(newJoinRequest.profile_image)) {
+			res
+				.status(400)
+				.send(errorResponse("Please upload image in base64 format"));
 		} else {
 			// formatting values
 			newJoinRequest.first_name = firstUpperCase(newJoinRequest.first_name);
