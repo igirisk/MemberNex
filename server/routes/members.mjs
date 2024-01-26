@@ -78,15 +78,16 @@ function isValidProfileImage(profile_image) {
 }
 // #endregion
 
-// Connect to the MongoDB database and create a unique index on the "adminno" field
+// Connect to the MongoDB database and create a unique index on the "admin_number" field
 const initDatabase = async () => {
 	const collection = await db.collection("members");
 
-	// Create a unique index on the "adminno" field
+	// Create a unique index on the "admin_number" field
 	await collection.createIndex({ admin_number: 1 }, { unique: true });
 
 	console.log(`members MongoDB connected and index created.`);
 };
+
 // call the function to initislie the database
 initDatabase();
 
@@ -202,6 +203,7 @@ router.patch("/:id", async (req, res) => {
 				admin_number: req.body.admin_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,
+				profile_image: req.body.profile_image,
 				role: req.body.role,
 			},
 		};
@@ -246,6 +248,13 @@ router.patch("/:id", async (req, res) => {
 			!isValidActiveness(updates.$set.activeness)
 		) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
+		} else if (
+			updates.$set.hasOwnProperty("profile_image") &&
+			!isValidProfileImage(updates.$set.profile_image)
+		) {	
+			res
+				.status(400)
+				.send(errorResponse("Please upload image in base64 format"));
 		} else if (
 			updates.$set.hasOwnProperty("role") &&
 			!isValidRole(updates.$set.role)

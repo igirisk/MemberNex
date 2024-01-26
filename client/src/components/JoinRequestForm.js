@@ -194,9 +194,11 @@ const JoinRequestForm = () => {
 							<Form.Label>Profile image:</Form.Label>
 							<MyDropzone onFilesChange={handleFilesChange} />
 							{fileError && (
-								<div class="text-danger">Please upload a valid image file</div>
+								<div className="text-danger">
+									Please upload a valid image file(jpg, jpeg or png)
+								</div>
 							)}
-							{!fileError && <div class="text-success">Looks good!</div>}
+							{!fileError && <div className="text-success">Looks good!</div>}
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">

@@ -302,7 +302,7 @@ const JoinRequests = ({ setReload }) => {
 				<h2 className="text-start">Join requests</h2>
 				{loading ? (
 					<p>
-						<i class="fas fa-spinner fa-pulse"></i> Loading...
+						<i className="fas fa-spinner fa-pulse"></i> Loading...
 					</p>
 				) : error ? (
 					<p>{error}</p>
