@@ -11,6 +11,12 @@ const successResponse = (message, data = null) => {
 const errorResponse = (message, details = null) => {
 	return { success: false, error: message, details };
 };
+
+// Funtion to set first character in string to uppercase
+function firstUpperCase(str) {
+	return str[0].toUpperCase() + str.slice(1).toLowerCase();
+}
+
 // #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(member) {
@@ -23,11 +29,6 @@ function areFieldsEmpty(member) {
 		}
 	}
 	return false; // No empty fields found
-}
-
-// Funtion to set first character in string to uppercase
-function firstUpperCase(str) {
-	return str[0].toUpperCase() + str.slice(1).toLowerCase();
 }
 
 function isValidEmail(email) {
@@ -68,17 +69,25 @@ function isValidRole(role) {
 	const value = ["main com", "sub com", "member"];
 	return value.includes(role.toLowerCase());
 }
+
+function isValidProfileImage(profile_image) {
+	// Regular expression to check if the string is a valid base64-encoded image
+	const base64Regex = /^data:image\/(jpeg|jpg|png);base64,/;
+
+	return base64Regex.test(profile_image);
+}
 // #endregion
 
-// Connect to the MongoDB database and create a unique index on the "adminno" field
+// Connect to the MongoDB database and create a unique index on the "admin_number" field
 const initDatabase = async () => {
 	const collection = await db.collection("members");
 
-	// Create a unique index on the "adminno" field
+	// Create a unique index on the "admin_number" field
 	await collection.createIndex({ admin_number: 1 }, { unique: true });
 
 	console.log(`members MongoDB connected and index created.`);
 };
+
 // call the function to initislie the database
 initDatabase();
 
@@ -130,6 +139,7 @@ router.post("/", async (req, res) => {
 			admin_number: req.body.admin_number,
 			study_year: req.body.study_year,
 			activeness: req.body.activeness,
+			profile_image: req.body.profile_image,
 			role: "member",
 		};
 
@@ -151,6 +161,10 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newMember.activeness)) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
+		} else if (!isValidProfileImage(newMember.profile_image)) {
+			res
+				.status(400)
+				.send(errorResponse("Please upload image in base64 format"));
 		} else {
 			// formatting values
 			newMember.first_name = firstUpperCase(newMember.first_name);
@@ -189,6 +203,7 @@ router.patch("/:id", async (req, res) => {
 				admin_number: req.body.admin_number,
 				study_year: req.body.study_year,
 				activeness: req.body.activeness,
+				profile_image: req.body.profile_image,
 				role: req.body.role,
 			},
 		};
@@ -233,6 +248,13 @@ router.patch("/:id", async (req, res) => {
 			!isValidActiveness(updates.$set.activeness)
 		) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
+		} else if (
+			updates.$set.hasOwnProperty("profile_image") &&
+			!isValidProfileImage(updates.$set.profile_image)
+		) {	
+			res
+				.status(400)
+				.send(errorResponse("Please upload image in base64 format"));
 		} else if (
 			updates.$set.hasOwnProperty("role") &&
 			!isValidRole(updates.$set.role)

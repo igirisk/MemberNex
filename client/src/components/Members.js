@@ -9,6 +9,9 @@ import Stack from "react-bootstrap/Stack";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
+import React from "react";
+import MyDropzone from "./MyDropzone";
+
 // Display member in card
 const MemberCard = (props) => {
 	const [showModal, setShowModal] = useState(false);
@@ -25,7 +28,7 @@ const MemberCard = (props) => {
 		<>
 			<Col>
 				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
-					<Card.Img variant="top" src="holder.js/100px180" />
+					<Card.Img variant="top" src={props.member.profile_image} />
 					<Card.Body>
 						<Card.Title>
 							{props.member.first_name + " " + props.member.last_name}
@@ -64,7 +67,7 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 
 	return (
 		<Modal show={true} onHide={onClose} size="lg">
-			<Modal.Header closeButton className="px-4 pb-3">
+			<Modal.Header closeButton className="px-4">
 				<h2>Member</h2>
 			</Modal.Header>
 			<Modal.Body className="px-4 pb-4">
@@ -91,8 +94,12 @@ const MemberModal = ({ props, onClose, updateTrigger }) => {
 const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 	return (
 		<Row>
-			<Col md="3">
-				<img src="" alt="profile image" />
+			<Col md="4">
+				<img
+					src={member.profile_image}
+					alt="profile image"
+					className="rounded img-fluid mb-2"
+				/>
 				<Stack gap={1}>
 					<Button variant="success" onClick={showEdit}>
 						Edit
@@ -108,7 +115,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 					</Button>
 				</Stack>
 			</Col>
-			<Col md="9">
+			<Col md="8">
 				<Stack gap={1}>
 					<h2>{member.first_name + " " + member.last_name}</h2>
 					<p>Role: {member.role}</p>
@@ -137,6 +144,37 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	});
 
 	const [validated, setValidated] = useState(false);
+	const [fileError, setFileError] = useState(false);
+	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+
+	// Handle files change
+	const handleFilesChange = (files) => {
+		setUploadedFiles(files);
+
+		// If files contain an image, convert it to base64 and update the form state
+		if (files.length === 1) {
+			convertImageToBase64(files[0]).then((base64Image) => {
+				setForm((prevForm) => ({
+					...prevForm,
+					profile_image: base64Image,
+				}));
+			});
+		}
+		if (isValidProfileImage(form.profile_image)) {
+			setFileError(false); // Reset file error state
+		} else {
+			// Handle invalid image case
+			setFileError(true); // Set file error state
+		}
+	};
+
+	const convertImageToBase64 = async (file) => {
+		return new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result);
+			reader.readAsDataURL(file);
+		});
+	};
 
 	function updateForm(value) {
 		setForm((prev) => ({ ...prev, ...value }));
@@ -148,9 +186,17 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 		const formElement = e.currentTarget;
 		setValidated(true);
 
-		if (formElement.checkValidity()) {
+		// Attach the base64-encoded image data to the form
+		if (uploadedFiles.length === 1) {
+			const base64Image = await convertImageToBase64(uploadedFiles[0]);
+			setForm((prevForm) => ({ ...prevForm, profile_image: base64Image }));
+		}
+
+		if (
+			formElement.checkValidity() &&
+			isValidProfileImage(form.profile_image)
+		) {
 			const newUpdate = { ...form };
-			console.log(JSON.stringify(newUpdate));
 
 			try {
 				const response = await fetch(`http://localhost:3050/member/${id}`, {
@@ -169,6 +215,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						study_year: "",
 						activeness: "",
 						role: "",
+						profile_image: "",
 					});
 
 					// Trigger the callback function passed from MemberModal
@@ -213,7 +260,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	// #region Custom form validations
 	function isValidInput(value, validationCondition) {
 		// Check if the value is present before applying validation
-		const isInputPresent = value.trim() !== "";
+		const isInputPresent = value && value.trim() !== "";
 
 		// If input is present, apply the validation condition
 		if (isInputPresent) {
@@ -256,14 +303,22 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 		isValidInput(role, (value) =>
 			["main com", "sub com", "member"].includes(value)
 		);
+
+	const isValidProfileImage = (profile_image) =>
+		isValidInput(profile_image, (value) =>
+			/^data:image\/(jpeg|jpg|png);base64,/.test(value)
+		);
 	// #endregion
 
 	return (
 		<Row>
 			<Col md="3">
 				<Stack gap={1}>
-					<img src="" alt="profile image" />
-					<Button variant="success">Upload image</Button>
+					<img
+						src={member.profile_image}
+						alt="profile image"
+						className="rounded img-fluid mb-2"
+					/>
 				</Stack>
 			</Col>
 			<Col md="9">
@@ -273,7 +328,19 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					onSubmit={(e) => updateMember(e, member._id, sendReload)}
 				>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom01">
+						<Form.Group as={Col} md="12" controlId="file-dropzone">
+							<Form.Label>Profile image:</Form.Label>
+							<MyDropzone onFilesChange={handleFilesChange} />
+							{fileError && (
+								<div className="text-danger">
+									Please upload a valid image file(jpg, jpeg or png)
+								</div>
+							)}
+							{!fileError && <div className="text-success">Looks good!</div>}
+						</Form.Group>
+					</Row>
+					<Row className="mb-3">
+						<Form.Group as={Col} md="6" controlId="firstName">
 							<Form.Label>First name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -288,7 +355,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom02">
+						<Form.Group as={Col} md="6" controlId="lastName">
 							<Form.Label>Last name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -305,7 +372,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="12" controlId="validationCustom03">
+						<Form.Group as={Col} md="12" controlId="email">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
@@ -322,7 +389,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom04">
+						<Form.Group as={Col} md="6" controlId="contactNumber">
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
@@ -337,7 +404,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom05">
+						<Form.Group as={Col} md="6" controlId="adminNumber">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
@@ -354,7 +421,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="4" controlId="validationCustom06">
+						<Form.Group as={Col} md="4" controlId="yearOfStudy">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
@@ -377,7 +444,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom07">
+						<Form.Group as={Col} md="4" controlId="activeness">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"
@@ -400,7 +467,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom08">
+						<Form.Group as={Col} md="4" controlId="role">
 							<Form.Label>Role:</Form.Label>
 							<Form.Select
 								id="role"
@@ -535,7 +602,9 @@ const Members = (relaod) => {
 			<Container>
 				<h2 className="text-start">Members</h2>
 				{loading ? (
-					<p>Loading...</p>
+					<p>
+						<i className="fas fa-spinner fa-pulse"></i> Loading...
+					</p>
 				) : error ? (
 					<p>{error}</p>
 				) : members.length === 0 ? (

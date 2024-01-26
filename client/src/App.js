@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 // Import components
 import MyNavbar from "./components/MyNavbar";

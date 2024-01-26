@@ -23,7 +23,7 @@ const JoinRequestCard = (props) => {
 		<>
 			<Col>
 				<Card style={{ width: "11rem" }} onClick={handleShowDetails}>
-					<Card.Img variant="top" src="holder.js/100px180" />
+					<Card.Img variant="top" src={props.joinRequest.profile_image} />
 					<Card.Body>
 						<Card.Title>
 							{props.joinRequest.first_name + " " + props.joinRequest.last_name}
@@ -54,6 +54,7 @@ const JoinRequestCard = (props) => {
 					joinRequest={props.joinRequest}
 					acceptJoinRequest={props.acceptJoinRequest}
 					rejectJoinRequest={props.rejectJoinRequest}
+					profile_image={props.joinRequest.profile_image}
 					onClose={handleCloseDetails}
 				/>
 			)}
@@ -65,6 +66,7 @@ const JoinRequestDetails = ({
 	joinRequest,
 	acceptJoinRequest,
 	rejectJoinRequest,
+	profile_image,
 	onClose,
 }) => {
 	return (
@@ -75,7 +77,12 @@ const JoinRequestDetails = ({
 			<Modal.Body className="px-4">
 				<Row>
 					<Col md="4">
-						<img src="" alt="profile image" />
+						<img
+							src={profile_image}
+							alt="profile image"
+							className="rounded img-fluid mb-2"
+						/>
+
 						<Stack gap={1}>
 							<Button
 								variant="success"
@@ -205,6 +212,7 @@ const JoinRequests = ({ setReload }) => {
 				admin_number: joinRequest.admin_number,
 				study_year: joinRequest.study_year,
 				activeness: joinRequest.activeness,
+				profile_image: joinRequest.profile_image,
 			};
 
 			// Create new member
@@ -242,11 +250,11 @@ const JoinRequests = ({ setReload }) => {
 					const res = await joinRequestResponse.json();
 
 					// Show unsuccessful notification
-					toast.error(`Failed to delete join request. Try again later.`, {
+					toast.error(`Failed to accept join request. Try again later.`, {
 						position: toast.POSITION.TOP_RIGHT,
 					});
 					console.log(
-						`Failed to delete join request.
+						`Failed to accept join request.
 			${res.error}, details: ${res.details}`
 					);
 				}
@@ -293,7 +301,9 @@ const JoinRequests = ({ setReload }) => {
 			<Container>
 				<h2 className="text-start">Join requests</h2>
 				{loading ? (
-					<p>Loading...</p>
+					<p>
+						<i className="fas fa-spinner fa-pulse"></i> Loading...
+					</p>
 				) : error ? (
 					<p>{error}</p>
 				) : joinRequests.length === 0 ? (

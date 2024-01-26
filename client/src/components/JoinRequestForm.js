@@ -7,6 +7,9 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
+import React from "react";
+import MyDropzone from "./MyDropzone";
+
 const JoinRequestForm = () => {
 	const [form, setForm] = useState({
 		first_name: "",
@@ -16,7 +19,39 @@ const JoinRequestForm = () => {
 		admin_number: "",
 		study_year: "",
 		activeness: "",
+		profile_image: "",
 	});
+	const [fileError, setFileError] = useState(false);
+	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+
+	// Handle files change
+	const handleFilesChange = (files) => {
+		setUploadedFiles(files);
+
+		// If files contain an image, convert it to base64 and update the form state
+		if (files.length === 1) {
+			convertImageToBase64(files[0]).then((base64Image) => {
+				setForm((prevForm) => ({
+					...prevForm,
+					profile_image: base64Image,
+				}));
+			});
+		}
+		if (isValidProfileImage(form.profile_image)) {
+			setFileError(false); // Reset file error state
+		} else {
+			// Handle invalid image case
+			setFileError(true); // Set file error state
+		}
+	};
+
+	const convertImageToBase64 = async (file) => {
+		return new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result);
+			reader.readAsDataURL(file);
+		});
+	};
 
 	function updateForm(value) {
 		setForm((prev) => ({ ...prev, ...value }));
@@ -26,7 +61,16 @@ const JoinRequestForm = () => {
 		e.preventDefault();
 		const formElement = e.currentTarget;
 
-		if (formElement.checkValidity()) {
+		// Attach the base64-encoded image data to the form
+		if (uploadedFiles.length === 1) {
+			const base64Image = await convertImageToBase64(uploadedFiles[0]);
+			setForm((prevForm) => ({ ...prevForm, profile_image: base64Image }));
+		}
+
+		if (
+			formElement.checkValidity() &&
+			isValidProfileImage(form.profile_image)
+		) {
 			const newJoinRequest = { ...form };
 
 			try {
@@ -45,6 +89,7 @@ const JoinRequestForm = () => {
 						admin_number: "",
 						study_year: "",
 						activeness: "",
+						profile_image: "",
 					});
 
 					// Show success notification
@@ -65,7 +110,7 @@ const JoinRequestForm = () => {
 						);
 					} else {
 						// show unsuccessful notification
-						toast.error(`Failed to send join request. Try again later.`, {
+						toast.error(`${res.error}`, {
 							position: toast.POSITION.TOP_RIGHT,
 						});
 						console.log(
@@ -80,6 +125,10 @@ const JoinRequestForm = () => {
 				});
 				console.error("Error sending join request:", error);
 			}
+		} else {
+			toast.error(`All fields required!`, {
+				position: toast.POSITION.TOP_RIGHT,
+			});
 		}
 	}
 
@@ -116,6 +165,11 @@ const JoinRequestForm = () => {
 				value
 			)
 		);
+
+	const isValidProfileImage = (profile_image) =>
+		isValidInput(profile_image, (value) =>
+			/^data:image\/(jpeg|jpg|png);base64,/.test(value)
+		);
 	// #endregion
 
 	return (
@@ -136,8 +190,19 @@ const JoinRequestForm = () => {
 				</p>
 				<Form noValidate onSubmit={sendJoinRequest}>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom01">
-							<form action="/upload" class="dropzone" id="myDropzone"></form>
+						<Form.Group as={Col} md="12" controlId="file-dropzone">
+							<Form.Label>Profile image:</Form.Label>
+							<MyDropzone onFilesChange={handleFilesChange} />
+							{fileError && (
+								<div className="text-danger">
+									Please upload a valid image file(jpg, jpeg or png)
+								</div>
+							)}
+							{!fileError && <div className="text-success">Looks good!</div>}
+						</Form.Group>
+					</Row>
+					<Row className="mb-3">
+						<Form.Group as={Col} md="6" controlId="firstName">
 							<Form.Label>First name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -153,7 +218,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom02">
+						<Form.Group as={Col} md="6" controlId="lastName">
 							<Form.Label>Last name:</Form.Label>
 							<Form.Control
 								type="text"
@@ -171,7 +236,7 @@ const JoinRequestForm = () => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="6" controlId="validationCustom03">
+						<Form.Group as={Col} md="6" controlId="email">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
 								type="email"
@@ -187,7 +252,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="6" controlId="validationCustom04">
+						<Form.Group as={Col} md="6" controlId="contactNumber">
 							<Form.Label>Contact number:</Form.Label>
 							<Form.Control
 								type="number"
@@ -205,7 +270,7 @@ const JoinRequestForm = () => {
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="4" controlId="validationCustom05">
+						<Form.Group as={Col} md="4" controlId="adminNumber">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
@@ -221,7 +286,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom06">
+						<Form.Group as={Col} md="4" controlId="yearOfStudy">
 							<Form.Label>Year of study:</Form.Label>
 							<Form.Select
 								id="study_year"
@@ -245,7 +310,7 @@ const JoinRequestForm = () => {
 							</Form.Control.Feedback>
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group as={Col} md="4" controlId="validationCustom07">
+						<Form.Group as={Col} md="4" controlId="activeness">
 							<Form.Label>Activeness:</Form.Label>
 							<Form.Select
 								id="activeness"

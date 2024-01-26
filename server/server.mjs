@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3050;
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Increase payload size limit to 10 megabytes
+app.use(express.json({ limit: "5mb" }));
 
 // member router for member api endpoints
 app.use("/member", members);
