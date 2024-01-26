@@ -33,7 +33,7 @@ const img = {
 	height: "100%",
 };
 
-const MyDropzone = ({ onFilesChange }) => {
+const MyDropzone = ({ onFilesChange, reset }) => {
 	const [files, setFiles] = useState([]);
 	const [error, setError] = useState(null);
 
@@ -85,6 +85,14 @@ const MyDropzone = ({ onFilesChange }) => {
 			</div>
 		</div>
 	));
+
+	useEffect(() => {
+		if (reset) {
+			// Clear files and reset state when reset is true
+			setFiles([]);
+			setError(null);
+		}
+	}, [reset]);
 
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks; will run on unmount

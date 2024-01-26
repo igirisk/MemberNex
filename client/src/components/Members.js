@@ -206,6 +206,9 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 				});
 
 				if (response.ok) {
+					// Reset the drop zone
+					setResetDropzone(true);
+					// reset form
 					setForm({
 						first_name: "",
 						last_name: "",
@@ -217,6 +220,8 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 						role: "",
 						profile_image: "",
 					});
+					setFileError(false);
+					setUploadedFiles([]);
 
 					// Trigger the callback function passed from MemberModal
 					sendReload();

@@ -23,6 +23,7 @@ const JoinRequestForm = () => {
 	});
 	const [fileError, setFileError] = useState(false);
 	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+	const [resetDropzone, setResetDropzone] = useState(false);
 
 	// Handle files change
 	const handleFilesChange = (files) => {
@@ -81,6 +82,9 @@ const JoinRequestForm = () => {
 				});
 
 				if (response.ok) {
+					// Reset the drop zone
+					setResetDropzone(true);
+					// reset form
 					setForm({
 						first_name: "",
 						last_name: "",
@@ -91,6 +95,8 @@ const JoinRequestForm = () => {
 						activeness: "",
 						profile_image: "",
 					});
+					setFileError(false);
+					setUploadedFiles([]);
 
 					// Show success notification
 					toast.success(`Join request sent successfully`, {
@@ -192,7 +198,10 @@ const JoinRequestForm = () => {
 					<Row className="mb-3">
 						<Form.Group as={Col} md="12" controlId="file-dropzone">
 							<Form.Label>Profile image:</Form.Label>
-							<MyDropzone onFilesChange={handleFilesChange} />
+							<MyDropzone
+								onFilesChange={handleFilesChange}
+								reset={resetDropzone}
+							/>
 							{fileError && (
 								<div className="text-danger">
 									Please upload a valid image file(jpg, jpeg or png)
