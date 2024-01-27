@@ -56,7 +56,7 @@ function isValidTime(time) {
 		parseInt(hours, 10) > 23 ||
 		parseInt(minutes, 10) < 0 ||
 		parseInt(minutes, 10) > 59
-	) { 
+	) {
 		return false;
 	}
 
@@ -104,7 +104,7 @@ router.get("/", async (req, res) => {
 		let result = await collection.find({}).toArray();
 
 		if (result.length !== 0) {
-			res.status(200).send(successResponse("events retrieved", result));
+			return res.status(200).send(successResponse("events retrieved", result));
 		} else {
 			return res
 				.status(200)
@@ -112,7 +112,7 @@ router.get("/", async (req, res) => {
 		}
 	} catch (e) {
 		console.error("Error fetching all events info:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -124,13 +124,13 @@ router.get("/:id", async (req, res) => {
 		let result = await collection.findOne(query);
 
 		if (result) {
-			res.status(200).send(successResponse("event retrieved", result));
+			return res.status(200).send(successResponse("event retrieved", result));
 		} else {
-			res.status(404).send(errorResponse("event not found"));
+			return res.status(404).send(errorResponse("event not found"));
 		}
 	} catch (e) {
 		console.error("Error fetching event by ID:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -182,7 +182,7 @@ router.post("/", async (req, res) => {
 			const collection = await db.collection("events");
 			let result = await collection.insertOne(newevent);
 
-			res.status(200).send(successResponse("event created", result));
+			return res.status(200).send(successResponse("event created", result));
 		}
 	} catch (e) {
 		if (e.code === 11000) {
@@ -192,7 +192,7 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Event name already registered, try another."));
 		} else {
 			console.error("Error creating new event:", e);
-			res.status(500).send(errorResponse("Internal Server Error", e));
+			return res.status(500).send(errorResponse("Internal Server Error", e));
 		}
 	}
 });
@@ -271,7 +271,7 @@ router.patch("/:id", async (req, res) => {
 			updates.$set.hasOwnProperty("role") &&
 			!isValidRole(updates.$set.role)
 		) {
-			res.status(400).send(errorResponse("Please input a vaild role"));
+			return res.status(400).send(errorResponse("Please input a vaild role"));
 		} else {
 			// formatting values
 			const keysToCheck = [
@@ -301,7 +301,9 @@ router.patch("/:id", async (req, res) => {
 						.status(200)
 						.send(successResponse(`${req.params.id} event is updated`, result));
 				} else {
-					res.status(200).send(successResponse(`event is up to date`, result));
+					return res
+						.status(200)
+						.send(successResponse(`event is up to date`, result));
 				}
 			} else {
 				res
@@ -319,7 +321,7 @@ router.patch("/:id", async (req, res) => {
 				.send(errorResponse("Event name already registered, try another."));
 		} else {
 			console.error("Error updating event info:", e);
-			res.status(500).send(errorResponse("Internal Server Error", e));
+			return res.status(500).send(errorResponse("Internal Server Error", e));
 		}
 	}
 });
@@ -332,13 +334,15 @@ router.delete("/:id", async (req, res) => {
 		let result = await collection.deleteOne(query);
 
 		if (result.deletedCount !== 0) {
-			res.status(200).send(successResponse("event deleted", result));
+			return res.status(200).send(successResponse("event deleted", result));
 		} else {
-			res.status(404).send(errorResponse("Failed to delete event", result));
+			return res
+				.status(404)
+				.send(errorResponse("Failed to delete event", result));
 		}
 	} catch (e) {
 		console.error("Error deleting event by ID:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
