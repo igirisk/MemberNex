@@ -100,7 +100,7 @@ router.get("/", async (req, res) => {
 		if (result.length !== 0) {
 			res.status(200).send(successResponse("Members retrieved", result));
 		} else {
-			res
+			return res
 				.status(200)
 				.send(successResponse("There is currently no members", result));
 		}
@@ -144,27 +144,27 @@ router.post("/", async (req, res) => {
 		};
 
 		if (areFieldsEmpty(newMember)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
 		} else if (!isValidEmail(newMember.email)) {
 			res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (!isValidContactNumber(newMember.contact_number)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
 		} else if (!isValidAdminNumber(newMember.admin_number)) {
 			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newMember.study_year)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newMember.activeness)) {
-			res.status(400).send(errorResponse("Please input a vaild activeness"));
+			res.status(400).send(errorResponse("Please input a vaild activeness."));
 		} else if (!isValidProfileImage(newMember.profile_image)) {
-			res
+			return res
 				.status(400)
-				.send(errorResponse("Please upload image in base64 format"));
+				.send(errorResponse("Please upload cover image in base64 format."));
 		} else {
 			// formatting values
 			newMember.first_name = firstUpperCase(newMember.first_name);
@@ -181,7 +181,7 @@ router.post("/", async (req, res) => {
 	} catch (e) {
 		if (e.code === 11000) {
 			console.error("Admin number already registered.", e);
-			res
+			return res
 				.status(500)
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {
@@ -220,7 +220,7 @@ router.patch("/:id", async (req, res) => {
 
 		// add form fields vaildation
 		if (Object.keys(updates.$set).length === 0) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please fill in input fields to update."));
 		}
@@ -233,28 +233,30 @@ router.patch("/:id", async (req, res) => {
 			updates.$set.hasOwnProperty("contact_number") &&
 			!isValidContactNumber(updates.$set.contact_number)
 		) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
 		} else if (
 			updates.$set.hasOwnProperty("study_year") &&
 			!isValidYearOfStudy(updates.$set.study_year)
 		) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (
 			updates.$set.hasOwnProperty("activeness") &&
 			!isValidActiveness(updates.$set.activeness)
 		) {
-			res.status(400).send(errorResponse("Please input a vaild activeness"));
+			res.status(400).send(errorResponse("Please input a vaild activeness."));
 		} else if (
 			updates.$set.hasOwnProperty("profile_image") &&
 			!isValidProfileImage(updates.$set.profile_image)
-		) {	
-			res
+		) {
+			return res
 				.status(400)
-				.send(errorResponse("Please upload image in base64 format"));
+				.send(
+					errorResponse("Please upload a valid image file(jpg, jpeg or png)")
+				);
 		} else if (
 			updates.$set.hasOwnProperty("role") &&
 			!isValidRole(updates.$set.role)
@@ -310,7 +312,7 @@ router.patch("/:id", async (req, res) => {
 	} catch (e) {
 		if (e.code === 11000) {
 			console.error("Admin number already registered.", e);
-			res
+			return res
 				.status(500)
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {

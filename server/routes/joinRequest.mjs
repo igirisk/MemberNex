@@ -85,7 +85,7 @@ router.get("/", async (req, res) => {
 		if (result.length !== 0) {
 			res.status(200).send(successResponse("Join requests retrieved", result));
 		} else {
-			res
+			return res
 				.status(200)
 				.send(successResponse("There is currently no join request", result));
 		}
@@ -110,27 +110,29 @@ router.post("/", async (req, res) => {
 		};
 
 		if (areFieldsEmpty(newJoinRequest)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
 		} else if (!isValidEmail(newJoinRequest.email)) {
 			res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (!isValidContactNumber(newJoinRequest.contact_number)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
 		} else if (!isValidAdminNumber(newJoinRequest.admin_number)) {
 			res.status(400).send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newJoinRequest.study_year)) {
-			res
+			return res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newJoinRequest.activeness)) {
 			res.status(400).send(errorResponse("Please input a vaild activeness"));
 		} else if (!isValidProfileImage(newJoinRequest.profile_image)) {
-			res
+			return res
 				.status(400)
-				.send(errorResponse("Please upload image in base64 format"));
+				.send(
+					errorResponse("Please upload a valid image file(jpg, jpeg or png)")
+				);
 		} else {
 			// formatting values
 			newJoinRequest.first_name = firstUpperCase(newJoinRequest.first_name);
@@ -142,14 +144,14 @@ router.post("/", async (req, res) => {
 			const collection = await db.collection("joinRequests");
 			let result = await collection.insertOne(newJoinRequest);
 
-			res
+			return res
 				.status(200)
 				.send(successResponse("Join request submitted successfully", result));
 		}
 	} catch (e) {
 		if (e.code === 11000) {
 			console.error("Admin number already registered.", e);
-			res
+			return res
 				.status(500)
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {
