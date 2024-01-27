@@ -14,7 +14,7 @@ const MyNavbar = () => {
 					<img
 						alt=""
 						src="./imgs/logo.png"
-						width="200"
+						width="180"
 						className="d-inline-block align-top"
 					/>
 				</NavLink>

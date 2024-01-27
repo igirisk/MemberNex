@@ -56,7 +56,7 @@ function isValidTime(time) {
 		parseInt(hours, 10) > 23 ||
 		parseInt(minutes, 10) < 0 ||
 		parseInt(minutes, 10) > 59
-	) {
+	) { 
 		return false;
 	}
 
