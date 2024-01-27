@@ -9,7 +9,6 @@ import Stack from "react-bootstrap/Stack";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-import React from "react";
 import MyDropzone from "./MyDropzone";
 
 // Display member in card
@@ -145,7 +144,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 
 	const [validated, setValidated] = useState(false);
 	const [fileError, setFileError] = useState(false);
-	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+	const [uploadedFiles, setUploadedFiles] = useState([]);
 	const [resetDropzone, setResetDropzone] = useState(false);
 
 	// Handle files change

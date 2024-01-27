@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "react-bootstrap/Button";
@@ -7,7 +7,6 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
-import React from "react";
 import MyDropzone from "./MyDropzone";
 
 const JoinRequestForm = () => {
@@ -22,7 +21,7 @@ const JoinRequestForm = () => {
 		profile_image: "",
 	});
 	const [fileError, setFileError] = useState(false);
-	const [uploadedFiles, setUploadedFiles] = React.useState([]);
+	const [uploadedFiles, setUploadedFiles] = useState([]);
 	const [resetDropzone, setResetDropzone] = useState(false);
 
 	// Handle files change
@@ -59,6 +58,7 @@ const JoinRequestForm = () => {
 	}
 
 	async function sendJoinRequest(e) {
+		console.log(form);
 		e.preventDefault();
 		const formElement = e.currentTarget;
 
@@ -82,6 +82,8 @@ const JoinRequestForm = () => {
 				});
 
 				if (response.ok) {
+					setFileError(false);
+					setUploadedFiles([]);
 					// Reset the drop zone
 					setResetDropzone(true);
 					// reset form
@@ -95,8 +97,6 @@ const JoinRequestForm = () => {
 						activeness: "",
 						profile_image: "",
 					});
-					setFileError(false);
-					setUploadedFiles([]);
 
 					// Show success notification
 					toast.success(`Join request sent successfully`, {

@@ -1,8 +1,7 @@
 import { useDropzone } from "react-dropzone";
 import "@fortawesome/fontawesome-free/css/all.css";
 import Stack from "react-bootstrap/esm/Stack";
-import React, { useState, useEffect } from "react";
-import Container from "react-bootstrap/esm/Container";
+import { useState, useEffect } from "react";
 import Alert from "react-bootstrap/esm/Alert";
 
 const thumbsContainer = {
@@ -47,25 +46,24 @@ const MyDropzone = ({ onFilesChange, reset }) => {
 					setError("Too many files");
 					setFiles([]); // Clear files if more than one file is uploaded
 					return;
-				} else {
-					const maxSizeInBytes = 3 * 1024 * 1024; // 3 MB
-					const file = acceptedFiles[0];
-
-					if (file.size > maxSizeInBytes) {
-						setError("File size exceeds the limit (3 MB)");
-						setFiles([]); // Clear files if the size exceeds the limit
-						return;
-					}
-
-					setFiles(
-						acceptedFiles.map((file) =>
-							Object.assign(file, {
-								preview: URL.createObjectURL(file),
-							})
-						)
-					);
-					setError(null);
 				}
+				const maxSizeInBytes = 3 * 1024 * 1024; // 3 MB
+				const file = acceptedFiles[0];
+
+				if (file.size > maxSizeInBytes) {
+					setError("File size exceeds the limit (3 MB)");
+					setFiles([]); // Clear files if the size exceeds the limit
+					return;
+				}
+
+				setFiles(
+					acceptedFiles.map((file) =>
+						Object.assign(file, {
+							preview: URL.createObjectURL(file),
+						})
+					)
+				);
+				setError(null);
 			},
 			maxSize: 3 * 1024 * 1024, // 3 MB
 			maxFiles: 1,
@@ -100,7 +98,7 @@ const MyDropzone = ({ onFilesChange, reset }) => {
 	}, [files, error]);
 
 	// Call the parent component's function when files change
-	React.useEffect(() => {
+	useEffect(() => {
 		onFilesChange(acceptedFiles);
 	}, [acceptedFiles, onFilesChange]);
 

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import members from "./routes/members.mjs";
 import joinRequest from "./routes/joinRequest.mjs";
+import event from "./routes/events.mjs";
 
 const PORT = process.env.PORT || 3050;
 const app = express();
@@ -15,6 +16,9 @@ app.use("/member", members);
 
 // joinRequest router for joinRequest api endpoints
 app.use("/joinRequest", joinRequest);
+
+// event router for event api endpoints
+app.use("/event", event);
 
 // start the Express server
 app.listen(PORT, () => {
