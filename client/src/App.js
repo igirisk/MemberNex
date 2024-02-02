@@ -16,7 +16,6 @@ function App() {
 
 	function noNav() {
 		const currentUrl = location.pathname;
-		console.log(currentUrl);
 		return currentUrl === "/" || currentUrl === "/sendJoinRequest";
 	}
 
