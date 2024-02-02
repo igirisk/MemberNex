@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
+import verifyToken from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -35,14 +36,6 @@ function isValidEmail(email) {
 	// one or more characters that is not white space before @, contains @, one or more characters that is not white space after @, contains .,one or more chatacters that matches is not white space till the end of the str
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	return emailRegex.test(email);
-}
-
-function isValidPassword(password) {
-	// Minimum eight characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-	const passwordRegex =
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/;
-
-	return passwordRegex.test(password);
 }
 
 function isValidContactNumber(contact_number) {
@@ -92,13 +85,13 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all members info
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
 	try {
 		const collection = await db.collection("members");
 		let result = await collection.find({}).toArray();
 
 		if (result.length !== 0) {
-			res.status(200).send(successResponse("Members retrieved", result));
+			return res.status(200).send(successResponse("Members retrieved", result));
 		} else {
 			return res
 				.status(200)
@@ -106,30 +99,30 @@ router.get("/", async (req, res) => {
 		}
 	} catch (e) {
 		console.error("Error fetching all members info:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
 // get member info by id
-router.get("/:id", async (req, res) => {
+router.get("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");
 		let result = await collection.findOne(query);
 
 		if (result) {
-			res.status(200).send(successResponse("Member retrieved", result));
+			return res.status(200).send(successResponse("Member retrieved", result));
 		} else {
-			res.status(404).send(errorResponse("Member not found"));
+			return res.status(404).send(errorResponse("Member not found"));
 		}
 	} catch (e) {
 		console.error("Error fetching member by ID:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
 // create new member
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
 	try {
 		const newMember = {
 			first_name: req.body.first_name,
@@ -148,19 +141,23 @@ router.post("/", async (req, res) => {
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
 		} else if (!isValidEmail(newMember.email)) {
-			res.status(400).send(errorResponse("Please input a valid email."));
+			return res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (!isValidContactNumber(newMember.contact_number)) {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
 		} else if (!isValidAdminNumber(newMember.admin_number)) {
-			res.status(400).send(errorResponse("Please input a valid admin number."));
+			return res
+				.status(400)
+				.send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newMember.study_year)) {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newMember.activeness)) {
-			res.status(400).send(errorResponse("Please input a vaild activeness."));
+			return res
+				.status(400)
+				.send(errorResponse("Please input a vaild activeness."));
 		} else if (!isValidProfileImage(newMember.profile_image)) {
 			return res
 				.status(400)
@@ -176,7 +173,7 @@ router.post("/", async (req, res) => {
 			const collection = await db.collection("members");
 			let result = await collection.insertOne(newMember);
 
-			res.status(200).send(successResponse("Member created", result));
+			return res.status(200).send(successResponse("Member created", result));
 		}
 	} catch (e) {
 		if (e.code === 11000) {
@@ -186,13 +183,13 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {
 			console.error("Error creating new member:", e);
-			res.status(500).send(errorResponse("Internal Server Error", e));
+			return res.status(500).send(errorResponse("Internal Server Error", e));
 		}
 	}
 });
 
 // update member info by id
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", verifyToken, async (req, res) => {
 	try {
 		const updates = {
 			$set: {
@@ -228,7 +225,7 @@ router.patch("/:id", async (req, res) => {
 			updates.$set.hasOwnProperty("email") &&
 			!isValidEmail(updates.$set.email)
 		) {
-			res.status(400).send(errorResponse("Please input a valid email."));
+			return res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (
 			updates.$set.hasOwnProperty("contact_number") &&
 			!isValidContactNumber(updates.$set.contact_number)
@@ -247,7 +244,9 @@ router.patch("/:id", async (req, res) => {
 			updates.$set.hasOwnProperty("activeness") &&
 			!isValidActiveness(updates.$set.activeness)
 		) {
-			res.status(400).send(errorResponse("Please input a vaild activeness."));
+			return res
+				.status(400)
+				.send(errorResponse("Please input a vaild activeness."));
 		} else if (
 			updates.$set.hasOwnProperty("profile_image") &&
 			!isValidProfileImage(updates.$set.profile_image)
@@ -261,7 +260,7 @@ router.patch("/:id", async (req, res) => {
 			updates.$set.hasOwnProperty("role") &&
 			!isValidRole(updates.$set.role)
 		) {
-			res.status(400).send(errorResponse("Please input a vaild role"));
+			return res.status(400).send(errorResponse("Please input a vaild role"));
 		} else {
 			// formatting values
 			const keysToCheck = [
@@ -299,7 +298,9 @@ router.patch("/:id", async (req, res) => {
 							successResponse(`${req.params.id} Member is updated`, result)
 						);
 				} else {
-					res.status(200).send(successResponse(`Member is up to date`, result));
+					return res
+						.status(200)
+						.send(successResponse(`Member is up to date`, result));
 				}
 			} else {
 				res
@@ -317,26 +318,28 @@ router.patch("/:id", async (req, res) => {
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {
 			console.error("Error updating member info:", e);
-			res.status(500).send(errorResponse("Internal Server Error", e));
+			return res.status(500).send(errorResponse("Internal Server Error", e));
 		}
 	}
 });
 
 // delete member by id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");
 		let result = await collection.deleteOne(query);
 
 		if (result.deletedCount !== 0) {
-			res.status(200).send(successResponse("Member deleted", result));
+			return res.status(200).send(successResponse("Member deleted", result));
 		} else {
-			res.status(404).send(errorResponse("Failed to delete member", result));
+			return res
+				.status(404)
+				.send(errorResponse("Failed to delete member", result));
 		}
 	} catch (e) {
 		console.error("Error deleting member by ID:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 

@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
+import verifyToken from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ const errorResponse = (message, details = null) => {
 function firstUpperCase(str) {
 	return str[0].toUpperCase() + str.slice(1).toLowerCase();
 }
+
 // #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(member) {
@@ -77,13 +79,15 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all join request
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
 	try {
 		const collection = await db.collection("joinRequests");
 		let result = await collection.find({}).toArray();
 
 		if (result.length !== 0) {
-			res.status(200).send(successResponse("Join requests retrieved", result));
+			return res
+				.status(200)
+				.send(successResponse("Join requests retrieved", result));
 		} else {
 			return res
 				.status(200)
@@ -91,7 +95,7 @@ router.get("/", async (req, res) => {
 		}
 	} catch (e) {
 		console.error("Error fetching all join requests:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 
@@ -114,19 +118,23 @@ router.post("/", async (req, res) => {
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
 		} else if (!isValidEmail(newJoinRequest.email)) {
-			res.status(400).send(errorResponse("Please input a valid email."));
+			return res.status(400).send(errorResponse("Please input a valid email."));
 		} else if (!isValidContactNumber(newJoinRequest.contact_number)) {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid contect number."));
 		} else if (!isValidAdminNumber(newJoinRequest.admin_number)) {
-			res.status(400).send(errorResponse("Please input a valid admin number."));
+			return res
+				.status(400)
+				.send(errorResponse("Please input a valid admin number."));
 		} else if (!isValidYearOfStudy(newJoinRequest.study_year)) {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid year of study(1,2 or 3)."));
 		} else if (!isValidActiveness(newJoinRequest.activeness)) {
-			res.status(400).send(errorResponse("Please input a vaild activeness"));
+			return res
+				.status(400)
+				.send(errorResponse("Please input a vaild activeness"));
 		} else if (!isValidProfileImage(newJoinRequest.profile_image)) {
 			return res
 				.status(400)
@@ -156,26 +164,30 @@ router.post("/", async (req, res) => {
 				.send(errorResponse("Admin number already registered, try another."));
 		} else {
 			console.error("Error creating new member:", e);
-			res.status(500).send(errorResponse("Internal Server Error", e));
+			return res.status(500).send(errorResponse("Internal Server Error", e));
 		}
 	}
 });
 
 // reject join request by id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("joinRequests");
 		let result = await collection.deleteOne(query);
 
 		if (result.deletedCount !== 0) {
-			res.status(200).send(successResponse("Join request rejected", result));
+			return res
+				.status(200)
+				.send(successResponse("Join request rejected", result));
 		} else {
-			res.status(404).send(errorResponse("Failed to reject request", result));
+			return res
+				.status(404)
+				.send(errorResponse("Failed to reject request", result));
 		}
 	} catch (e) {
 		console.error("Error rejecting request by ID:", e);
-		res.status(500).send(errorResponse("Internal Server Error", e));
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 

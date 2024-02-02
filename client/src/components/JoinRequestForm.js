@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "react-bootstrap/Button";
@@ -58,7 +59,6 @@ const JoinRequestForm = () => {
 	}
 
 	async function sendJoinRequest(e) {
-		console.log(form);
 		e.preventDefault();
 		const formElement = e.currentTarget;
 
@@ -179,7 +179,7 @@ const JoinRequestForm = () => {
 	// #endregion
 
 	return (
-		<div id="addMember" className="my-5">
+		<div id="joinRequstForm" className="my-5">
 			<Container className="border border-secondary rounded p-5 w-50">
 				<div
 					id="logos"
@@ -344,7 +344,19 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
-					<Button type="submit">Send request</Button>
+					<Row className="px-2 pb-3">
+						<Button type="submit">Send request</Button>
+					</Row>
+					<Row className="text-center">
+						<p>
+							Back to login? click{" "}
+							<Link to="/">
+								<b>
+									<u>here</u>
+								</b>
+							</Link>
+						</p>
+					</Row>
 				</Form>
 			</Container>
 			<ToastContainer />

@@ -192,10 +192,16 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 		if (formElement.checkValidity() && isValidCoverImage(form.cover_image)) {
 			const newUpdate = { ...form };
 
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
+
 			try {
 				const response = await fetch(`http://localhost:3050/event/${id}`, {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						Authorization: token ? token : "",
+						"Content-Type": "application/json",
+					},
 					body: JSON.stringify(newUpdate),
 				});
 
@@ -345,9 +351,9 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 							<Form.Control
 								type="text"
 								placeholder={event.name}
-								isInvalid={!isValidName(event.name)}
-								isValid={isValidName(event.name)}
-								value={event.name}
+								isInvalid={!isValidName(form.name)}
+								isValid={isValidName(form.name)}
+								value={form.name}
 								onChange={(e) => updateForm({ name: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -362,9 +368,9 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 							<Form.Control
 								type="date"
 								placeholder={event.date}
-								isInvalid={!isValidDate(event.date)}
-								isValid={isValidDate(event.date)}
-								value={event.date}
+								isInvalid={!isValidDate(form.date)}
+								isValid={isValidDate(form.date)}
+								value={form.date}
 								onChange={(e) => updateForm({ date: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -376,12 +382,13 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 							<Form.Label>Start:</Form.Label>
 							<Form.Control
 								type="time"
-								placeholder={event.start_time}
-								isInvalid={!isValidTime(event.start_time)}
-								isValid={isValidTime(event.start_time)}
-								value={event.start_time}
-								onChange={(e) => updateForm({ start: e.target.start_time })}
+								defaultValue={event.start_time}
+								isInvalid={!isValidTime(form.start_time)}
+								isValid={isValidTime(form.start_time)}
+								vvalue={form.start_time && event.start_time}
+								onChange={(e) => updateForm({ start_time: e.target.value })}
 							/>
+
 							<Form.Control.Feedback type="invalid">
 								Please input a valid start time(HH:MM).
 							</Form.Control.Feedback>
@@ -391,10 +398,10 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 							<Form.Label>End:</Form.Label>
 							<Form.Control
 								type="time"
-								placeholder={event.end_time}
-								isInvalid={!isValidTime(event.end_time)}
-								isValid={isValidTime(event.end_time)}
-								value={event.end_time}
+								defaultValue={event.end_time}
+								isInvalid={!isValidTime(form.end_time)}
+								isValid={isValidTime(form.end_time)}
+								vvalue={form.end_time && event.end_time}
 								onChange={(e) => updateForm({ end_time: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -409,9 +416,9 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 							<Form.Control
 								type="textfield"
 								placeholder={event.description}
-								isInvalid={!isValidDescription(event.description)}
-								isValid={isValidDescription(event.description)}
-								value={event.description}
+								isInvalid={!isValidDescription(form.description)}
+								isValid={isValidDescription(form.description)}
+								value={form.description}
 								onChange={(e) => updateForm({ description: e.target.value })}
 							/>
 							<Form.Control.Feedback type="invalid">
@@ -500,11 +507,15 @@ const EventForm = ({ onClose, updateTrigger }) => {
 
 		if (formElement.checkValidity() && isValidCoverImage(form.cover_image)) {
 			const newEvent = { ...form };
-
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
 			try {
 				const response = await fetch(`http://localhost:3050/event`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						Authorization: token ? token : "",
+						"Content-Type": "application/json",
+					},
 					body: JSON.stringify(newEvent),
 				});
 
@@ -766,8 +777,15 @@ const Events = (relaod) => {
 	// Fetch all join requests from the database
 	useEffect(() => {
 		async function getAllEvents() {
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
 			try {
-				const response = await fetch("http://localhost:3050/event");
+				const response = await fetch("http://localhost:3050/event", {
+					method: "GET",
+					headers: {
+						Authorization: token ? token : "",
+					},
+				});
 				if (response.ok) {
 					const eventsData = (await response.json()).data;
 					setEvents(eventsData);
@@ -801,9 +819,14 @@ const Events = (relaod) => {
 
 	// Remove event from database
 	async function deleteEvent(id) {
+		// retrieve token from session storage
+		const token = sessionStorage.getItem("token");
 		try {
 			const response = await fetch(`http://localhost:3050/event/${id}`, {
 				method: "DELETE",
+				headers: {
+					Authorization: token ? token : "",
+				},
 			});
 
 			if (response.ok) {

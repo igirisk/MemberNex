@@ -7,6 +7,11 @@ import { Search } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 
 const MyNavbar = () => {
+	function logout() {
+		// To clear all items from sessionStorage
+		sessionStorage.clear();
+	}
+
 	return (
 		<Navbar expand="lg" className="bg-body-tertiary" fixed="top">
 			<Container>
@@ -36,7 +41,8 @@ const MyNavbar = () => {
 						</NavLink>
 						<NavLink
 							className="nav-link bg-danger text-white rounded"
-							to="/sendJoinRequest"
+							to="/"
+							onClick={logout}
 						>
 							Logout
 						</NavLink>

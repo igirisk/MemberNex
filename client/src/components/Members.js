@@ -198,10 +198,16 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 		) {
 			const newUpdate = { ...form };
 
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
+
 			try {
 				const response = await fetch(`http://localhost:3050/member/${id}`, {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						Authorization: token ? token : "",
+						"Content-Type": "application/json",
+					},
 					body: JSON.stringify(newUpdate),
 				});
 
@@ -520,8 +526,15 @@ const Members = (relaod) => {
 	// Fetch all join requests from the database
 	useEffect(() => {
 		async function getAllMembers() {
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
 			try {
-				const response = await fetch("http://localhost:3050/member");
+				const response = await fetch("http://localhost:3050/member", {
+					method: "GET",
+					headers: {
+						Authorization: token ? token : "",
+					},
+				});
 				if (response.ok) {
 					const membersData = (await response.json()).data;
 					setMembers(membersData);
@@ -555,9 +568,14 @@ const Members = (relaod) => {
 
 	// Remove member from database
 	async function deleteMember(id) {
+		// retrieve token from session storage
+		const token = sessionStorage.getItem("token");
 		try {
 			const response = await fetch(`http://localhost:3050/member/${id}`, {
 				method: "DELETE",
+				headers: {
+					Authorization: token ? token : "",
+				},
 			});
 
 			if (response.ok) {

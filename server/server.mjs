@@ -3,6 +3,7 @@ import cors from "cors";
 import members from "./routes/members.mjs";
 import joinRequest from "./routes/joinRequest.mjs";
 import event from "./routes/events.mjs";
+import account from "./routes/accounts.mjs";
 
 const PORT = process.env.PORT || 3050;
 const app = express();
@@ -20,7 +21,11 @@ app.use("/joinRequest", joinRequest);
 // event router for event api endpoints
 app.use("/event", event);
 
+// account router for event api endpoints
+app.use("/account", account);
+
 // start the Express server
 app.listen(PORT, () => {
 	console.log(`server is running on port: http://localhost:${PORT}`);
 });
+	
