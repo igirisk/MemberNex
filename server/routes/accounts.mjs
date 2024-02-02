@@ -15,10 +15,6 @@ const errorResponse = (message, details = null) => {
 	return { success: false, error: message, details };
 };
 
-// Funtion to set first character in string to uppercase
-function firstUpperCase(str) {
-	return str[0].toUpperCase() + str.slice(1).toLowerCase();
-}
 // #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(account) {

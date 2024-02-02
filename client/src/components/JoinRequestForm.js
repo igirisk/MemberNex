@@ -58,7 +58,6 @@ const JoinRequestForm = () => {
 	}
 
 	async function sendJoinRequest(e) {
-		console.log(form);
 		e.preventDefault();
 		const formElement = e.currentTarget;
 
@@ -179,7 +178,7 @@ const JoinRequestForm = () => {
 	// #endregion
 
 	return (
-		<div id="addMember" className="my-5">
+		<div id="joinRequstForm" className="my-5">
 			<Container className="border border-secondary rounded p-5 w-50">
 				<div
 					id="logos"

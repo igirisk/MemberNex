@@ -34,10 +34,7 @@ const MyNavbar = () => {
 						<NavLink className="nav-link" to="">
 							Members
 						</NavLink>
-						<NavLink
-							className="nav-link bg-danger text-white rounded"
-							to="/sendJoinRequest"
-						>
+						<NavLink className="nav-link bg-danger text-white rounded" to="/">
 							Logout
 						</NavLink>
 					</Nav>
