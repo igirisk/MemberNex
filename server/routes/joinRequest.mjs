@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
+import verifyToken from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ const errorResponse = (message, details = null) => {
 function firstUpperCase(str) {
 	return str[0].toUpperCase() + str.slice(1).toLowerCase();
 }
+
 // #region validation
 // Function to check if fields are empty
 function areFieldsEmpty(member) {
@@ -77,7 +79,7 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all join request
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
 	try {
 		const collection = await db.collection("joinRequests");
 		let result = await collection.find({}).toArray();
@@ -98,7 +100,7 @@ router.get("/", async (req, res) => {
 });
 
 // create new join request
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
 	try {
 		const newJoinRequest = {
 			first_name: req.body.first_name,
@@ -168,7 +170,7 @@ router.post("/", async (req, res) => {
 });
 
 // reject join request by id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("joinRequests");
