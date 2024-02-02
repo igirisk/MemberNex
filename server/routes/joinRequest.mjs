@@ -100,7 +100,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // create new join request
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", async (req, res) => {
 	try {
 		const newJoinRequest = {
 			first_name: req.body.first_name,

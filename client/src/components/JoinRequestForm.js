@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "react-bootstrap/Button";
@@ -343,8 +344,18 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
-					<Row>
+					<Row className="px-2 pb-3">
 						<Button type="submit">Send request</Button>
+					</Row>
+					<Row className="text-center">
+						<p>
+							Back to login? click{" "}
+							<Link to="/">
+								<b>
+									<u>here</u>
+								</b>
+							</Link>
+						</p>
 					</Row>
 				</Form>
 			</Container>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -119,10 +119,20 @@ const LoginForm = () => {
 							/>
 						</Form.Group>
 					</Row>
-					<Row className="px-2">
+					<Row className="px-2 pb-3">
 						<Button type="submit" className="btn-block">
 							Login
 						</Button>
+					</Row>
+					<Row className="text-center">
+						<p>
+							Want to join IITSC? Click{" "}
+							<Link to="/sendJoinRequest">
+								<b>
+									<u>here</u>
+								</b>
+							</Link>
+						</p>
 					</Row>
 				</Form>
 			</Container>
