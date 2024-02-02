@@ -133,8 +133,15 @@ const JoinRequests = ({ setReload }) => {
 	// Fetch all join requests from the database
 	useEffect(() => {
 		async function getAllJoinRequests() {
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
 			try {
-				const response = await fetch("http://localhost:3050/joinRequest");
+				const response = await fetch("http://localhost:3050/joinRequest", {
+					method: "GET",
+					headers: {
+						Authorization: token ? token : "",
+					},
+				});
 				if (response.ok) {
 					const joinRequestData = (await response.json()).data;
 					setJoinRequests(joinRequestData);
@@ -168,9 +175,15 @@ const JoinRequests = ({ setReload }) => {
 
 	// Remove join request from database
 	async function rejectJoinRequest(id) {
+		// retrieve token from session storage
+		const token = sessionStorage.getItem("token");
+
 		try {
 			const response = await fetch(`http://localhost:3050/joinRequest/${id}`, {
 				method: "DELETE",
+				headers: {
+					Authorization: token ? token : "",
+				},
 			});
 
 			if (response.ok) {
@@ -215,10 +228,16 @@ const JoinRequests = ({ setReload }) => {
 				profile_image: joinRequest.profile_image,
 			};
 
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
+
 			// Create new member
 			const memberResponse = await fetch("http://localhost:3050/member", {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					Authorization: token ? token : "",
+					"Content-Type": "application/json",
+				},
 				body: JSON.stringify(newMember),
 			});
 
@@ -229,6 +248,9 @@ const JoinRequests = ({ setReload }) => {
 					`http://localhost:3050/joinRequest/${joinRequest._id}`,
 					{
 						method: "DELETE",
+						headers: {
+							Authorization: token ? token : "",
+						},
 					}
 				);
 

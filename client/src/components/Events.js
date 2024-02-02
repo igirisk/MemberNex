@@ -191,8 +191,10 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 
 		if (formElement.checkValidity() && isValidCoverImage(form.cover_image)) {
 			const newUpdate = { ...form };
+
 			// retrieve token from session storage
 			const token = sessionStorage.getItem("token");
+
 			try {
 				const response = await fetch(`http://localhost:3050/event/${id}`, {
 					method: "PATCH",

@@ -343,7 +343,9 @@ const JoinRequestForm = () => {
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
-					<Button type="submit">Send request</Button>
+					<Row>
+						<Button type="submit">Send request</Button>
+					</Row>
 				</Form>
 			</Container>
 			<ToastContainer />
