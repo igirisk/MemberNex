@@ -520,8 +520,14 @@ const Members = (relaod) => {
 	// Fetch all join requests from the database
 	useEffect(() => {
 		async function getAllMembers() {
+			// retrieve token from session storage
+			const token = sessionStorage.getItem("token");
 			try {
-				const response = await fetch("http://localhost:3050/member");
+				const response = await fetch("http://localhost:3050/member", {
+					headers: {
+						Authorization: token ? token : "",
+					},
+				});
 				if (response.ok) {
 					const membersData = (await response.json()).data;
 					setMembers(membersData);
