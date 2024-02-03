@@ -7,9 +7,30 @@ import { Search } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 
 const MyNavbar = () => {
-	function logout() {
-		// To clear all items from sessionStorage
-		sessionStorage.clear();
+	async function logout() {
+		// retrieve token from session storage
+		const token = sessionStorage.getItem("token");
+
+		// Make a request to the server to invalidate the JWT token
+		try {
+			const response = await fetch("http://localhost:3050/logout", {
+				method: "POST",
+				headers: {
+					Authorization: token ? token : "",
+				},
+			});
+
+			if (response.ok) {
+				// Clear all items from sessionStorage
+				sessionStorage.clear();
+			} else {
+				console.error("Error during logout:", response.statusText);
+				// Handle the error, display a message, or perform other actions
+			}
+		} catch (error) {
+			console.error("Error during logout:", error);
+			// Handle the error, display a message, or perform other actions
+		}
 	}
 
 	return (

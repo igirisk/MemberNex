@@ -1,7 +1,6 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
-import verifyToken from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -85,7 +84,7 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all members info
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", async (req, res) => {
 	try {
 		const collection = await db.collection("members");
 		let result = await collection.find({}).toArray();
@@ -104,7 +103,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // get member info by id
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");
@@ -122,7 +121,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 // create new member
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", async (req, res) => {
 	try {
 		const newMember = {
 			first_name: req.body.first_name,
@@ -189,7 +188,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // update member info by id
-router.patch("/:id", verifyToken, async (req, res) => {
+router.patch("/:id", async (req, res) => {
 	try {
 		const updates = {
 			$set: {
@@ -220,8 +219,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please fill in input fields to update."));
-		}
-		if (
+		} else if (
 			updates.$set.hasOwnProperty("email") &&
 			!isValidEmail(updates.$set.email)
 		) {
@@ -324,7 +322,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 });
 
 // delete member by id
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("members");

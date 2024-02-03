@@ -96,7 +96,7 @@ const MemberDetails = ({ member, deleteMember, showEdit, onClose }) => {
 			<Col md="4">
 				<img
 					src={member.profile_image}
-					alt="profile image"
+					alt="profile_image"
 					className="rounded img-fluid mb-2"
 				/>
 				<Stack gap={1}>
@@ -327,7 +327,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 				<Stack gap={1}>
 					<img
 						src={member.profile_image}
-						alt="profile image"
+						alt="profile_image"
 						className="rounded img-fluid mb-2"
 					/>
 				</Stack>

@@ -96,7 +96,7 @@ const EventDetails = ({ event, deleteEvent, showEdit, onClose }) => {
 			<Col md="4">
 				<img
 					src={event.cover_image}
-					alt="cover image"
+					alt="cover_image"
 					className="rounded img-fluid mb-2"
 				/>
 				<Stack gap={1}>
@@ -196,7 +196,7 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 			const token = sessionStorage.getItem("token");
 
 			try {
-				const response = await fetch(`http://localhost:3050/event/${id}`, {
+				const response = await fetch(`"http://localhost:3050/event/${id}`, {
 					method: "PATCH",
 					headers: {
 						Authorization: token ? token : "",
@@ -319,7 +319,7 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 				<Stack gap={1}>
 					<img
 						src={event.cover_image}
-						alt="cover image"
+						alt="cover_image"
 						className="rounded img-fluid mb-2"
 					/>
 				</Stack>

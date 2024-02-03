@@ -8,7 +8,6 @@ import Container from "react-bootstrap/esm/Container";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-const qrcode = require("qrcode");
 
 const LoginForm = () => {
 	const navigate = useNavigate();
@@ -16,6 +15,7 @@ const LoginForm = () => {
 	const [form, setForm] = useState({
 		admin_number: "",
 		password: "",
+		otp: "",
 	});
 
 	function updateForm(value) {
@@ -28,7 +28,6 @@ const LoginForm = () => {
 
 		if (formElement.checkValidity()) {
 			const loginInfo = { ...form };
-			console.log(loginInfo);
 
 			try {
 				const response = await fetch("http://localhost:3050/account/login", {
@@ -42,6 +41,7 @@ const LoginForm = () => {
 					setForm({
 						admin_number: "",
 						password: "",
+						otp: "",
 					});
 
 					const res = await response.json();
@@ -101,7 +101,7 @@ const LoginForm = () => {
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
-								placeholder="admin number"
+								placeholder="Enter admin number"
 								required
 								value={form.email}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
@@ -113,10 +113,22 @@ const LoginForm = () => {
 							<Form.Label>Password:</Form.Label>
 							<Form.Control
 								type="password"
-								placeholder="password"
+								placeholder="Enter password"
 								required
 								value={form.password}
 								onChange={(e) => updateForm({ password: e.target.value })}
+							/>
+						</Form.Group>
+					</Row>
+					<Row className="mb-3">
+						<Form.Group as={Col} md="12" controlId="2faVerification">
+							<Form.Label>2 step Verification:</Form.Label>
+							<Form.Control
+								type="text"
+								placeholder="Enter code"
+								required
+								value={form.otp}
+								onChange={(e) => updateForm({ otp: e.target.value })}
 							/>
 						</Form.Group>
 					</Row>

@@ -79,7 +79,7 @@ const JoinRequestDetails = ({
 					<Col md="4">
 						<img
 							src={profile_image}
-							alt="profile image"
+							alt="profile_image"
 							className="rounded img-fluid mb-2"
 						/>
 

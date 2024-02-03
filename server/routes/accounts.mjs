@@ -2,14 +2,14 @@ import express from "express";
 import db from "../db/conn.mjs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
+import { secretkey, tokenBlacklist } from "./verifyToken.mjs";
 
+import bcrypt from "bcrypt";
 import speakeasy from "speakeasy";
 import nodemailer from "nodemailer";
 import qrcode from "qrcode";
 
 const router = express.Router();
-
-const secretkey = "ALLAONLY132121321";
 
 const successResponse = (message, data = null) => {
 	return { success: true, message, data };
@@ -159,6 +159,12 @@ router.post("/register", async (req, res) => {
 			newAccount.admin_number = newAccount.admin_number.toUpperCase();
 			delete newAccount.confirmPassword;
 
+			//number of times password hashing is applied to password
+			const saltRounds = 10;
+			// hash password
+			const hashedPassword = await bcrypt.hash(newAccount.password, saltRounds);
+			newAccount.password = hashedPassword;
+
 			const collection = await db.collection("accounts");
 			let result;
 
@@ -210,9 +216,11 @@ router.post("/login", async (req, res) => {
 				.send(errorResponse("Please fill in all the input fields."));
 		} else {
 			const collection = await db.collection("accounts");
-			const user = await collection.findOne({ admin_number, password });
+			const user = await collection.findOne({ admin_number });
+			// check if entered password matches with hashed password in database
+			const matchPassword = await bcrypt.compare(password, user.password);
 
-			if (user) {
+			if (matchPassword) {
 				const verified = speakeasy.totp.verify({
 					secret: user.secret2fa.ascii,
 					encoding: "ascii",
@@ -247,11 +255,27 @@ router.post("/login", async (req, res) => {
 	}
 });
 
+// logout and terminate jwt token
+router.post("/logout", async (req, res) => {
+	try {
+		const token = req.headers.authorization;
+
+		// Blacklist the token or perform any other termination logic
+		tokenBlacklist.add(token);
+
+		return res.status(200).send(successResponse("Token terminated"));
+	} catch (error) {
+		console.error("Error terminating token:", error);
+		res.status(500).send(errorResponse("Internal Server Error", error));
+	}
+});
+
 // update account info by id
 router.patch("/:id", async (req, res) => {
 	try {
 		const updates = {
 			$set: {
+				email: req.body.email,
 				password: req.body.password,
 				confirmPassword: req.body.confirmPassword,
 			},
@@ -272,8 +296,12 @@ router.patch("/:id", async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please fill in input fields to update."));
-		}
-		if (
+		} else if (
+			updates.$set.hasOwnProperty("email") &&
+			!isValidEmail(updates.$set.email)
+		) {
+			return res.status(400).send(errorResponse("Please input a valid email."));
+		} else if (
 			updates.$set.hasOwnProperty("password") &&
 			!isValidPassword(updates.$set.password)
 		) {
@@ -289,7 +317,18 @@ router.patch("/:id", async (req, res) => {
 				.status(400)
 				.send(errorResponse("Password and Confirm Password do not match."));
 		} else {
-			delete updates.confirmPassword;
+			delete updates.$set.confirmPassword;
+
+			if (updates.$set.hasOwnProperty("password")) {
+				//number of times password hashing is applied to password
+				const saltRounds = 10;
+				// hash password
+				const hashedPassword = await bcrypt.hash(
+					updates.$set.password,
+					saltRounds
+				);
+				updates.$set.password = hashedPassword;
+			}
 
 			const query = { _id: new ObjectId(req.params.id) };
 			const collection = await db.collection("accounts");
@@ -297,7 +336,7 @@ router.patch("/:id", async (req, res) => {
 
 			if (result.matchedCount === 1) {
 				if (result.modifiedCount === 1) {
-					res
+					return res
 						.status(200)
 						.send(
 							successResponse(`${req.params.id} Account is updated`, result)
@@ -308,7 +347,7 @@ router.patch("/:id", async (req, res) => {
 						.send(successResponse(`Account is up to date`, result));
 				}
 			} else {
-				res
+				return res
 					.status(404)
 					.send(
 						errorResponse("Account not found. Failed to update account", result)
