@@ -3,6 +3,10 @@ import db from "../db/conn.mjs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 
+import speakeasy from "speakeasy";
+import nodemailer from "nodemailer";
+import qrcode from "qrcode";
+
 const router = express.Router();
 
 const secretkey = "ALLAONLY132121321";
@@ -60,17 +64,72 @@ const initDatabase = async () => {
 
 	console.log(`accounts MongoDB connected and index created.`);
 };
+
 // call the function to initislie the database
 initDatabase();
+
+async function sendVerificationEmail(email, otpauth_url) {
+	return new Promise((resolve, reject) => {
+		let transporter = nodemailer.createTransport({
+			service: "gmail",
+			secure: false,
+			auth: {
+				user: "fwb2fa@gmail.com",
+				pass: "vcjy dbtj lrbn asht",
+			},
+		});
+
+		qrcode.toDataURL(otpauth_url, function (err, data) {
+			if (err) {
+				console.error("Error generating QR code:", err);
+				reject(err);
+			} else {
+				let mailOptions = {
+					from: "fwb2fa@gmail.com",
+					to: email,
+					subject: "2-Factor Verification for MemberNex",
+					html: `<p>To enhance the security of your MemberNex account, we have enabled 2-Factor Authentication. Please follow the instructions below to set up 2FA:</p>
+                    <ol>
+                        <li>Download and install a 2FA app on your mobile device (e.g., Google Authenticator).</li>
+                        <li>Open the 2FA app and scan the QR code below.</li>
+                    </ol>
+                    <img src="cid:unique@nodemailer.com" alt="2FA QR Code"/>`,
+					attachments: [
+						{
+							filename: "qrcode.png",
+							content: data.split(";base64,")[1],
+							encoding: "base64",
+							cid: "unique@nodemailer.com",
+						},
+					],
+				};
+
+				transporter.sendMail(mailOptions, function (error, info) {
+					if (error) {
+						console.error("Error sending email:", error);
+						reject(error);
+					} else {
+						resolve();
+					}
+				});
+			}
+		});
+	});
+}
 
 // create new account
 router.post("/register", async (req, res) => {
 	try {
+		let secret2fa = speakeasy.generateSecret({
+			name: "MemberNex",
+		});
+
 		const newAccount = {
 			admin_number: req.body.admin_number,
 			email: req.body.email,
 			password: req.body.password,
 			confirmPassword: req.body.confirmPassword,
+			secret2fa: secret2fa,
 		};
 
 		if (areFieldsEmpty(newAccount)) {
@@ -101,22 +160,37 @@ router.post("/register", async (req, res) => {
 			delete newAccount.confirmPassword;
 
 			const collection = await db.collection("accounts");
-			let result = await collection.insertOne(newAccount);
+			let result;
 
-			return res
-				.status(200)
-				.send(successResponse("Account created successfully", result));
+			try {
+				result = await collection.insertOne(newAccount);
+
+				// Sending verification QR code only if database insertion is successful
+				await sendVerificationEmail(newAccount.email, secret2fa.otpauth_url);
+
+				return res
+					.status(200)
+					.send(successResponse("Account created successfully", result));
+			} catch (e) {
+				// Handle database insertion error
+				if (e.code === 11000) {
+					console.error("Admin number already registered.", e);
+					return res
+						.status(500)
+						.send(
+							errorResponse("Admin number already registered, try another.")
+						);
+				} else {
+					console.error("Error creating new account:", e);
+					return res
+						.status(500)
+						.send(errorResponse("Internal Server Error", e));
+				}
+			}
 		}
 	} catch (e) {
-		if (e.code === 11000) {
-			console.error("Admin number already registered.", e);
-			return res
-				.status(500)
-				.send(errorResponse("Admin number already registered, try another."));
-		} else {
-			console.error("Error creating new account:", e);
-			return res.status(500).send(errorResponse("Internal Server Error", e));
-		}
+		console.error("Error creating new account:", e);
+		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });
 

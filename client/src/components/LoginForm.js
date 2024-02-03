@@ -8,6 +8,7 @@ import Container from "react-bootstrap/esm/Container";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+const qrcode = require("qrcode");
 
 const LoginForm = () => {
 	const navigate = useNavigate();
