@@ -68,7 +68,7 @@ const initDatabase = async () => {
 // call the function to initislie the database
 initDatabase();
 
-async function sendVerificationEmail(email, otpauth_url) {
+async function sendVerificationEmail(admin_number, email, otpauth_url) {
 	return new Promise((resolve, reject) => {
 		let transporter = nodemailer.createTransport({
 			service: "gmail",
@@ -88,7 +88,7 @@ async function sendVerificationEmail(email, otpauth_url) {
 					from: "fwb2fa@gmail.com",
 					to: email,
 					subject: "2-Factor Verification for MemberNex",
-					html: `<p>To enhance the security of your MemberNex account, we have enabled 2-Factor Authentication. Please follow the instructions below to set up 2FA:</p>
+					html: `<p>To enhance the security of your ${admin_number} MemberNex account, we have enabled 2-Factor Authentication. Please follow the instructions below to set up 2FA:</p>
                     <ol>
                         <li>Download and install a 2FA app on your mobile device (e.g., Google Authenticator).</li>
                         <li>Open the 2FA app and scan the QR code below.</li>
@@ -166,7 +166,11 @@ router.post("/register", async (req, res) => {
 				result = await collection.insertOne(newAccount);
 
 				// Sending verification QR code only if database insertion is successful
-				await sendVerificationEmail(newAccount.email, secret2fa.otpauth_url);
+				await sendVerificationEmail(
+					newAccount.admin_number,
+					newAccount.email,
+					secret2fa.otpauth_url
+				);
 
 				return res
 					.status(200)
@@ -198,8 +202,9 @@ router.post("/login", async (req, res) => {
 	try {
 		const admin_number = req.body.admin_number;
 		const password = req.body.password;
+		const otp = req.body.otp;
 
-		if (!admin_number || !password) {
+		if (!admin_number || !password || !otp) {
 			return res
 				.status(400)
 				.send(errorResponse("Please fill in all the input fields."));
@@ -208,16 +213,28 @@ router.post("/login", async (req, res) => {
 			const user = await collection.findOne({ admin_number, password });
 
 			if (user) {
-				// create a jwt token
-				const token = jwt.sign(
-					{ admin_number: user.admin_number, password: user.password },
-					secretkey,
-					{ expiresIn: "1h" }
-				);
-				// send the token in the response
-				return res
-					.status(200)
-					.send(successResponse("Login successfully", { token: token }));
+				const verified = speakeasy.totp.verify({
+					secret: user.secret2fa.ascii,
+					encoding: "ascii",
+					token: otp,
+				});
+
+				if (verified) {
+					// create a jwt token
+					const token = jwt.sign(
+						{ admin_number: user.admin_number, password: user.password },
+						secretkey,
+						{ expiresIn: "1h" }
+					);
+					// send the token in the response
+					return res
+						.status(200)
+						.send(successResponse("Login successfully", { token: token }));
+				} else {
+					return res
+						.status(401)
+						.send(errorResponse("Invalid 2 factor authentication otp"));
+				}
 			} else {
 				return res
 					.status(401)
