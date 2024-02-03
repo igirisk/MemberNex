@@ -1,7 +1,6 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
-import verifyToken from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -136,7 +135,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 // create new event
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", async (req, res) => {
 	try {
 		const newevent = {
 			name: req.body.name,
@@ -199,7 +198,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // update event info by id
-router.patch("/:id", verifyToken, async (req, res) => {
+router.patch("/:id", async (req, res) => {
 	try {
 		const updates = {
 			$set: {
@@ -328,7 +327,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 });
 
 // delete event by id
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("events");

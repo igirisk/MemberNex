@@ -7,9 +7,15 @@ import { Search } from "react-bootstrap-icons";
 import { NavLink } from "react-router-dom";
 
 const MyNavbar = () => {
-	function logout() {
-		// To clear all items from sessionStorage
-		sessionStorage.clear();
+	// Client-Side logout function
+	async function logout() {
+		// Make a request to server to invalidate the JWT token
+		try {
+			// Clear all items from sessionStorage
+			sessionStorage.clear();
+		} catch (error) {
+			console.error("Error during logout:", error);
+		}
 	}
 
 	return (

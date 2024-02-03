@@ -2,15 +2,14 @@ import express from "express";
 import db from "../db/conn.mjs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
+import { secretkey, tokenBlacklist } from "./verifyToken.mjs";
 
-import bcrypt, { compare } from "bcrypt";
+import bcrypt from "bcrypt";
 import speakeasy from "speakeasy";
 import nodemailer from "nodemailer";
 import qrcode from "qrcode";
 
 const router = express.Router();
-
-const secretkey = "ALLAONLY132121321";
 
 const successResponse = (message, data = null) => {
 	return { success: true, message, data };
@@ -253,6 +252,21 @@ router.post("/login", async (req, res) => {
 	} catch (e) {
 		console.error("Error logging in:", e);
 		return res.status(500).send(errorResponse("Internal Server Error", e));
+	}
+});
+
+// logout and terminate jwt token
+router.post("/logout", async (req, res) => {
+	try {
+		const token = req.headers.authorization;
+
+		// Blacklist the token or perform any other termination logic
+		tokenBlacklist.add(token);
+
+		return res.status(200).send(successResponse("Token terminated"));
+	} catch (error) {
+		console.error("Error terminating token:", error);
+		res.status(500).send(errorResponse("Internal Server Error", error));
 	}
 });
 

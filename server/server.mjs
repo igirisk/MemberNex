@@ -4,6 +4,7 @@ import members from "./routes/members.mjs";
 import joinRequest from "./routes/joinRequest.mjs";
 import event from "./routes/events.mjs";
 import account from "./routes/accounts.mjs";
+import { verifyToken } from "./routes/verifyToken.mjs";
 
 const PORT = process.env.PORT || 3050;
 const app = express();
@@ -13,13 +14,13 @@ app.use(cors());
 app.use(express.json({ limit: "5mb" }));
 
 // member router for member api endpoints
-app.use("/member", members);
+app.use("/member", verifyToken, members);
 
 // joinRequest router for joinRequest api endpoints
-app.use("/joinRequest", joinRequest);
+app.use("/joinRequest", verifyToken, joinRequest);
 
 // event router for event api endpoints
-app.use("/event", event);
+app.use("/event", verifyToken, event);
 
 // account router for event api endpoints
 app.use("/account", account);
@@ -28,4 +29,3 @@ app.use("/account", account);
 app.listen(PORT, () => {
 	console.log(`server is running on port: http://localhost:${PORT}`);
 });
-	
