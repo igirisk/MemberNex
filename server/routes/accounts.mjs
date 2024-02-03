@@ -3,6 +3,7 @@ import db from "../db/conn.mjs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 
+import bcrypt, { compare } from "bcrypt";
 import speakeasy from "speakeasy";
 import nodemailer from "nodemailer";
 import qrcode from "qrcode";
@@ -159,6 +160,12 @@ router.post("/register", async (req, res) => {
 			newAccount.admin_number = newAccount.admin_number.toUpperCase();
 			delete newAccount.confirmPassword;
 
+			//number of times password hashing is applied to password
+			const saltRounds = 10;
+			// hash password
+			const hashedPassword = await bcrypt.hash(newAccount.password, saltRounds);
+			newAccount.password = hashedPassword;
+
 			const collection = await db.collection("accounts");
 			let result;
 
@@ -210,9 +217,11 @@ router.post("/login", async (req, res) => {
 				.send(errorResponse("Please fill in all the input fields."));
 		} else {
 			const collection = await db.collection("accounts");
-			const user = await collection.findOne({ admin_number, password });
+			const user = await collection.findOne({ admin_number });
+			// check if entered password matches with hashed password in database
+			const matchPassword = await bcrypt.compare(password, user.password);
 
-			if (user) {
+			if (matchPassword) {
 				const verified = speakeasy.totp.verify({
 					secret: user.secret2fa.ascii,
 					encoding: "ascii",
