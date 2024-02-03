@@ -98,7 +98,7 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all events info
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", async (req, res) => {
 	try {
 		const collection = await db.collection("events");
 		let result = await collection.find({}).toArray();
@@ -117,7 +117,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // get event info by id
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("events");
