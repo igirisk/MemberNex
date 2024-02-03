@@ -160,7 +160,9 @@ router.post("/", async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid admin number."));
-		} else if (checkAdminNumberExistsInJoinRequests(newMember.admin_number)) {
+		} else if (
+			await checkAdminNumberExistsInJoinRequests(newMember.admin_number)
+		) {
 			return res
 				.status(400)
 				.send(errorResponse("Accept join request to create this member"));

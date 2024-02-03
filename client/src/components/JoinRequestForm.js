@@ -349,8 +349,8 @@ const JoinRequestForm = () => {
 					</Row>
 					<Row className="text-center">
 						<p>
-							Back to login? click{" "}
-							<Link to="/">
+							Management login, click{" "}
+							<Link to="/login">
 								<b>
 									<u>here</u>
 								</b>

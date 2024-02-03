@@ -17,7 +17,7 @@ app.use(express.json({ limit: "5mb" }));
 app.use("/member", verifyToken, members);
 
 // joinRequest router for joinRequest api endpoints
-app.use("/joinRequest", verifyToken, joinRequest);
+app.use("/joinRequest", joinRequest);
 
 // event router for event api endpoints
 app.use("/event", verifyToken, event);

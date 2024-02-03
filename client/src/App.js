@@ -16,14 +16,14 @@ function App() {
 
 	function noNav() {
 		const currentUrl = location.pathname;
-		return currentUrl === "/" || currentUrl === "/sendJoinRequest";
+		return currentUrl === "/" || currentUrl === "/login";
 	}
 
 	return (
 		<div className="App py-5">
 			{!noNav() && <MyNavbar />}
 			<Routes>
-				<Route path="/" element={<LoginForm />} />
+				<Route path="/" element={<JoinRequestForm />} />
 				<Route
 					path="/home"
 					element={
@@ -34,7 +34,7 @@ function App() {
 						</>
 					}
 				/>
-				<Route path="/sendJoinRequest" element={<JoinRequestForm />} />
+				<Route path="/login" element={<LoginForm />} />
 			</Routes>
 		</div>
 	);

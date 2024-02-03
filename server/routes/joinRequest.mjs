@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
+import { verifyToken } from "./verifyToken.mjs";
 
 const router = express.Router();
 
@@ -90,7 +91,7 @@ const initDatabase = async () => {
 initDatabase();
 
 // get list of all join request
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
 	try {
 		const collection = await db.collection("joinRequests");
 		let result = await collection.find({}).toArray();
@@ -138,7 +139,9 @@ router.post("/", async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid admin number."));
-		} else if (checkAdminNumberExistsInMembers(newJoinRequest.admin_number)) {
+		} else if (
+			await checkAdminNumberExistsInMembers(newJoinRequest.admin_number)
+		) {
 			return res
 				.status(400)
 				.send(errorResponse("Admin number already registered, try another."));
@@ -185,7 +188,7 @@ router.post("/", async (req, res) => {
 });
 
 // reject join request by id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("joinRequests");

@@ -97,13 +97,13 @@ const LoginForm = () => {
 				</p>
 				<Form noValidate onSubmit={login}>
 					<Row className="mb-3">
-						<Form.Group as={Col} md="12" controlId="email">
+						<Form.Group as={Col} md="12" controlId="admin_number">
 							<Form.Label>Admin number:</Form.Label>
 							<Form.Control
 								type="text"
 								placeholder="Enter admin number"
 								required
-								value={form.email}
+								value={form.admin_number}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
 						</Form.Group>
@@ -140,7 +140,7 @@ const LoginForm = () => {
 					<Row className="text-center">
 						<p>
 							Want to join IITSC? Click{" "}
-							<Link to="/sendJoinRequest">
+							<Link to="/">
 								<b>
 									<u>here</u>
 								</b>
