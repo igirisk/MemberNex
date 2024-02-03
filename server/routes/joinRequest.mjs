@@ -63,6 +63,18 @@ function isValidProfileImage(profile_image) {
 
 	return base64Regex.test(profile_image);
 }
+
+const checkAdminNumberExistsInMembers = async (adminNumber) => {
+	const collection = await db.collection("members");
+
+	// Check if admin number exists in the "members" collection
+	const existingMember = await collection.findOne({
+		admin_number: adminNumber,
+	});
+
+	return !!existingMember; // Returns true if admin number exists, false otherwise
+};
+
 // #endregion
 
 // Connect to the MongoDB database and create a unique index on the "adminno" field
@@ -126,6 +138,10 @@ router.post("/", async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please input a valid admin number."));
+		} else if (checkAdminNumberExistsInMembers(newJoinRequest.admin_number)) {
+			return res
+				.status(400)
+				.send(errorResponse("Admin number already registered, try another."));
 		} else if (!isValidYearOfStudy(newJoinRequest.study_year)) {
 			return res
 				.status(400)

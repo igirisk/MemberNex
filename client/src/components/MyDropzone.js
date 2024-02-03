@@ -75,6 +75,7 @@ const MyDropzone = ({ onFilesChange, reset }) => {
 				<img
 					src={file.preview}
 					style={img}
+					alt="image_preview"
 					// Revoke data uri after image is loaded
 					onLoad={() => {
 						URL.revokeObjectURL(file.preview);
