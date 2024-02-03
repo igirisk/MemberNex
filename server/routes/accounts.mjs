@@ -261,6 +261,7 @@ router.patch("/:id", async (req, res) => {
 	try {
 		const updates = {
 			$set: {
+				email: req.body.email,
 				password: req.body.password,
 				confirmPassword: req.body.confirmPassword,
 			},
@@ -281,8 +282,12 @@ router.patch("/:id", async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please fill in input fields to update."));
-		}
-		if (
+		} else if (
+			updates.$set.hasOwnProperty("email") &&
+			!isValidEmail(updates.$set.email)
+		) {
+			return res.status(400).send(errorResponse("Please input a valid email."));
+		} else if (
 			updates.$set.hasOwnProperty("password") &&
 			!isValidPassword(updates.$set.password)
 		) {
@@ -298,7 +303,18 @@ router.patch("/:id", async (req, res) => {
 				.status(400)
 				.send(errorResponse("Password and Confirm Password do not match."));
 		} else {
-			delete updates.confirmPassword;
+			delete updates.$set.confirmPassword;
+
+			if (updates.$set.hasOwnProperty("password")) {
+				//number of times password hashing is applied to password
+				const saltRounds = 10;
+				// hash password
+				const hashedPassword = await bcrypt.hash(
+					updates.$set.password,
+					saltRounds
+				);
+				updates.$set.password = hashedPassword;
+			}
 
 			const query = { _id: new ObjectId(req.params.id) };
 			const collection = await db.collection("accounts");
@@ -306,7 +322,7 @@ router.patch("/:id", async (req, res) => {
 
 			if (result.matchedCount === 1) {
 				if (result.modifiedCount === 1) {
-					res
+					return res
 						.status(200)
 						.send(
 							successResponse(`${req.params.id} Account is updated`, result)
@@ -317,7 +333,7 @@ router.patch("/:id", async (req, res) => {
 						.send(successResponse(`Account is up to date`, result));
 				}
 			} else {
-				res
+				return res
 					.status(404)
 					.send(
 						errorResponse("Account not found. Failed to update account", result)

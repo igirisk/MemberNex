@@ -220,8 +220,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 			return res
 				.status(400)
 				.send(errorResponse("Please fill in input fields to update."));
-		}
-		if (
+		} else if (
 			updates.$set.hasOwnProperty("email") &&
 			!isValidEmail(updates.$set.email)
 		) {
