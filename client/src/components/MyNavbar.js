@@ -218,7 +218,7 @@ const MyNavbar = () => {
 
 		// Make a request to the server to invalidate the JWT token
 		try {
-			const response = await fetch("http://localhost:3050/logout", {
+			const response = await fetch("http://localhost:3050/account/logout", {
 				method: "POST",
 				headers: {
 					Authorization: token ? token : "",

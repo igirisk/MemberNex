@@ -35,6 +35,7 @@ const EventCard = (props) => {
 					<Card.Body>
 						<Card.Title>{props.event.name}</Card.Title>
 						<Card.Text className="text-muted">
+							{props.event.date}
 							{props.event.start_time + " - " + props.event.end_time}
 						</Card.Text>
 					</Card.Body>
@@ -756,7 +757,12 @@ const EventForm = ({ onClose, updateTrigger }) => {
 							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
-					<Button type="submit">Send request</Button>
+					<Stack direction="horizontal" gap={3}>
+						<Button type="button" variant="danger" onClick={onClose}>
+							Cancel
+						</Button>
+						<Button type="submit">Add event</Button>
+					</Stack>
 				</Form>
 			</Modal.Body>
 		</Modal>
