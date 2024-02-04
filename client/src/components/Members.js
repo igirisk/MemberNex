@@ -26,7 +26,11 @@ const MemberCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowModal}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.member.profile_image} />
 					<Card.Body>
 						<Card.Title>
@@ -205,6 +209,56 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 			try {
 				setLoading(true); // Set loading to true before making the request
 
+				// delete account if role is not main com anymore
+				if (member.role === "main com" && form.role !== "main com") {
+					console.log("delete account");
+					const userConfirmed = window.confirm(
+						`${form.admin_number} management account will be deleted. Are you sure you want to demote ${form.admin_number} from main com?`
+					);
+
+					if (userConfirmed) {
+						const response = await fetch(
+							`http://localhost:3050/account/${member.admin_number}`,
+							{
+								method: "DELETE",
+								headers: {
+									Authorization: token ? token : "",
+								},
+							}
+						);
+
+						const res = await response.json();
+						console.log(res);
+						if (response.ok) {
+							// Show success notification
+							toast.success(
+								`${form.admin_number} management account deleted successfully.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+						} else {
+							const res = await response.json();
+							// show unsuccessful notification
+							toast.error(
+								`Failed to delete ${form.admin_number} management account. Try again later.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+							console.log(res);
+							console.log(
+								`Failed to delete management account.
+							${res.error}, details: ${res.details}`
+							);
+						}
+					} else {
+						setLoading(false); // Set loading to false if user cancels
+						return;
+					}
+				}
+
+				// create account if role is main com
 				if (form.role === "main com") {
 					const userConfirmed = window.confirm(
 						`A management account will be created. Are you sure you want to promote ${form.admin_number} into a main com?`
@@ -252,7 +306,6 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							password: randomPassword,
 							confirmPassword: randomPassword,
 						};
-						console.log("account", account);
 
 						const response = await fetch(
 							`http://localhost:3050/account/register`,

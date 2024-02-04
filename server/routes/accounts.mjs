@@ -377,9 +377,9 @@ router.patch("/:id", async (req, res) => {
 });
 
 // reject account by id
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:admin_number", verifyToken, async (req, res) => {
 	try {
-		const query = { _id: new ObjectId(req.params.id) };
+		const query = { admin_number: req.params.admin_number };
 		const collection = await db.collection("accounts");
 		let result = await collection.deleteOne(query);
 
@@ -391,7 +391,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 				.send(errorResponse("Failed to delete account", result));
 		}
 	} catch (e) {
-		console.error("Error deleting account by ID:", e);
+		console.error("Error deleting account by admin number:", e);
 		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });

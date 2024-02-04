@@ -22,7 +22,11 @@ const JoinRequestCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowDetails}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowDetails}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.joinRequest.profile_image} />
 					<Card.Body>
 						<Card.Title>

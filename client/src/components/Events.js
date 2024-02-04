@@ -26,7 +26,11 @@ const EventCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowModal}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.event.cover_image} />
 					<Card.Body>
 						<Card.Title>{props.event.name}</Card.Title>
