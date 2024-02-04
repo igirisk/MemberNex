@@ -24,17 +24,23 @@ function App() {
 			{!noNav() && <MyNavbar />}
 			<Routes>
 				<Route path="/" element={<JoinRequestForm />} />
+				<Route path="/login" element={<LoginForm />} />
 				<Route
 					path="/home"
 					element={
 						<>
-							<Events />
-							<Members reload={reload} />
-							<JoinRequests setReload={setReload} />
+							<Events count={6} />
+							<Members reload={reload} count={6} />
+							<JoinRequests setReload={setReload} count={6} />
 						</>
 					}
 				/>
-				<Route path="/login" element={<LoginForm />} />
+				<Route path="/events" element={<Events />} />
+				<Route path="/members" element={<Members reload={reload} />} />
+				<Route
+					path="/joinRequests"
+					element={<JoinRequests setReload={setReload} />}
+				/>
 			</Routes>
 		</div>
 	);

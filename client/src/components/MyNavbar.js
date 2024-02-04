@@ -263,11 +263,14 @@ const MyNavbar = () => {
 					<Navbar.Collapse id="basic-navbar-nav">
 						<Nav className="me-auto"></Nav>
 						<Nav>
-							<NavLink className="nav-link" to="">
+							<NavLink className="nav-link" to="events">
 								Events
 							</NavLink>
-							<NavLink className="nav-link" to="">
+							<NavLink className="nav-link" to="/members">
 								Members
+							</NavLink>
+							<NavLink className="nav-link" to="/joinRequests">
+								Join Requests
 							</NavLink>
 							<NavLink className="nav-link" onClick={handleShowModal}>
 								Profile

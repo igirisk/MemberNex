@@ -517,7 +517,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	);
 };
 
-const Members = (relaod) => {
+const Members = ({ relaod, count }) => {
 	const [members, setMembers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -606,9 +606,9 @@ const Members = (relaod) => {
 		}
 	}
 
-	// Map out the members
-	function membersList(updateTriggerSetter) {
-		return members.map((member) => {
+	// Map out the specified number of members
+	function membersList(updateTriggerSetter, numberOfMembers) {
+		return members.slice(0, numberOfMembers).map((member) => {
 			return (
 				<MemberCard
 					member={member}
@@ -636,7 +636,7 @@ const Members = (relaod) => {
 				) : members.length === 0 ? (
 					<p>There is currently no member</p>
 				) : (
-					<Row>{membersList(setUpdateTrigger)}</Row>
+					<Row>{membersList(setUpdateTrigger, count)}</Row>
 				)}
 			</Container>
 			<ToastContainer />
