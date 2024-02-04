@@ -2,7 +2,7 @@ import express from "express";
 import db from "../db/conn.mjs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
-import { secretkey, tokenBlacklist } from "./verifyToken.mjs";
+import { secretkey, tokenBlacklist, verifyToken } from "./verifyToken.mjs";
 
 import bcrypt from "bcrypt";
 import speakeasy from "speakeasy";
@@ -217,7 +217,11 @@ router.post("/login", async (req, res) => {
 		} else {
 			const collection = await db.collection("accounts");
 			const user = await collection.findOne({ admin_number });
-			// check if entered password matches with hashed password in database
+			if (!user) {
+				return res
+					.status(401)
+					.send(errorResponse("Invalid admin number or password"));
+			}
 			const matchPassword = await bcrypt.compare(password, user.password);
 
 			if (matchPassword) {
@@ -235,9 +239,12 @@ router.post("/login", async (req, res) => {
 						{ expiresIn: "1h" }
 					);
 					// send the token in the response
-					return res
-						.status(200)
-						.send(successResponse("Login successfully", { token: token }));
+					return res.status(200).send(
+						successResponse("Login successfully", {
+							token: token,
+							loginId: user._id,
+						})
+					);
 				} else {
 					return res
 						.status(401)
@@ -256,7 +263,7 @@ router.post("/login", async (req, res) => {
 });
 
 // logout and terminate jwt token
-router.post("/logout", async (req, res) => {
+router.post("/logout", verifyToken, async (req, res) => {
 	try {
 		const token = req.headers.authorization;
 
@@ -361,7 +368,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // reject account by id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
 	try {
 		const query = { _id: new ObjectId(req.params.id) };
 		const collection = await db.collection("accounts");
