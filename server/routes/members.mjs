@@ -73,11 +73,11 @@ const checkAdminNumberExistsInJoinRequests = async (adminNumber) => {
 	const collection = await db.collection("joinRequests");
 
 	// Check if admin number exists in the "members" collection
-	const existingMember = await collection.findOne({
+	const existingJoinRequest = await collection.findOne({
 		admin_number: adminNumber,
 	});
 
-	return !!existingMember; // Returns true if admin number exists, false otherwise
+	return !!existingJoinRequest; // Returns true if admin number exists, false otherwise
 };
 // #endregion
 
@@ -161,7 +161,7 @@ router.post("/", async (req, res) => {
 				.status(400)
 				.send(errorResponse("Please input a valid admin number."));
 		} else if (
-			await checkAdminNumberExistsInJoinRequests(newMember.admin_number)
+			await !checkAdminNumberExistsInJoinRequests(newMember.admin_number)
 		) {
 			return res
 				.status(400)
