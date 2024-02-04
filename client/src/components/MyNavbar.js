@@ -253,12 +253,6 @@ const MyNavbar = () => {
 							className="d-inline-block align-top"
 						/>
 					</NavLink>
-					<Form className="d-flex">
-						<Form.Control type="text" placeholder="Search" />
-						<Button type="submit" className="mx-3">
-							<Search size={20} /> {/* Bootstrap Search icon */}
-						</Button>
-					</Form>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
 					<Navbar.Collapse id="basic-navbar-nav">
 						<Nav className="me-auto"></Nav>
