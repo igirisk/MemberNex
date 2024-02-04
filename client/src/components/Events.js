@@ -877,7 +877,7 @@ const Events = ({ relaod, count }) => {
 	return (
 		<div id="events" className="my-5">
 			<Container>
-				<Stack direction="horizontal" gap={3}>
+				<Stack direction="horizontal" gap={2}>
 					<h2 className="text-start">Events</h2>
 					<Button
 						className="btn btn-primary btn-circle p-1"

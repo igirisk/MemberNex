@@ -349,7 +349,7 @@ const JoinRequestForm = () => {
 					</Row>
 					<Row className="text-center">
 						<p>
-							Management login, click{" "}
+							Management login, Click{" "}
 							<Link to="/login">
 								<b>
 									<u>here</u>
