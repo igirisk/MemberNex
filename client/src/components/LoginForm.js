@@ -46,6 +46,7 @@ const LoginForm = () => {
 
 					const res = await response.json();
 					sessionStorage.setItem("token", res.data.token);
+					sessionStorage.setItem("loginId", res.data.loginId);
 
 					// Show success notification
 					toast.success(`Login successfully`, {
