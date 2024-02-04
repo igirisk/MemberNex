@@ -39,7 +39,7 @@ const LoginForm = () => {
 				if (response.ok) {
 					// reset form
 					setForm({
-						admin_number: "",
+						admin_number: "".trim(),
 						password: "",
 						otp: "",
 					});
@@ -80,6 +80,17 @@ const LoginForm = () => {
 		}
 	}
 
+	// #region Custom form validations
+	function isValidInput(value, validationCondition) {
+		const isValid = validationCondition(value);
+		return isValid;
+	}
+
+	const isValidAdminNumber = (admin_number) =>
+		// 7 digit before a alphabet
+		isValidInput(admin_number, (value) => /^\d{7}[A-Za-z]$/.test(value));
+	// #endregion
+
 	return (
 		<div id="loginForm" className="my-5">
 			<Container className="border border-secondary rounded p-5 w-50">
@@ -104,9 +115,15 @@ const LoginForm = () => {
 								type="text"
 								placeholder="Enter admin number"
 								required
+								isInvalid={!isValidAdminNumber(form.admin_number)}
+								isValid={isValidAdminNumber(form.admin_number)}
 								value={form.admin_number}
 								onChange={(e) => updateForm({ admin_number: e.target.value })}
 							/>
+							<Form.Control.Feedback type="invalid">
+								Please provide a valid Admin number.
+							</Form.Control.Feedback>
+							<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 						</Form.Group>
 					</Row>
 					<Row className="mb-3">

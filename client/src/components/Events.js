@@ -26,7 +26,11 @@ const EventCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowModal}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.event.cover_image} />
 					<Card.Body>
 						<Card.Title>{props.event.name}</Card.Title>
@@ -196,7 +200,7 @@ const EventEdit = ({ event, closeEdit, sendReload }) => {
 			const token = sessionStorage.getItem("token");
 
 			try {
-				const response = await fetch(`"http://localhost:3050/event/${id}`, {
+				const response = await fetch(`http://localhost:3050/event/${id}`, {
 					method: "PATCH",
 					headers: {
 						Authorization: token ? token : "",
@@ -759,7 +763,7 @@ const EventForm = ({ onClose, updateTrigger }) => {
 	);
 };
 
-const Events = (relaod) => {
+const Events = ({ relaod, count }) => {
 	const [events, setEvents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -857,9 +861,9 @@ const Events = (relaod) => {
 		}
 	}
 
-	// Map out the events
-	function eventsList(updateTriggerSetter) {
-		return events.map((event) => {
+	// Map out the specified number of events
+	function eventsList(updateTriggerSetter, numberOfEvents) {
+		return events.slice(0, numberOfEvents).map((event) => {
 			return (
 				<EventCard
 					event={event}
@@ -877,7 +881,7 @@ const Events = (relaod) => {
 	return (
 		<div id="events" className="my-5">
 			<Container>
-				<Stack direction="horizontal" gap={3}>
+				<Stack direction="horizontal" gap={2}>
 					<h2 className="text-start">Events</h2>
 					<Button
 						className="btn btn-primary btn-circle p-1"
@@ -895,7 +899,7 @@ const Events = (relaod) => {
 				) : events.length === 0 ? (
 					<p>There is currently no event</p>
 				) : (
-					<Row>{eventsList(setUpdateTrigger)}</Row>
+					<Row>{eventsList(setUpdateTrigger, count)}</Row>
 				)}
 			</Container>
 			{showEventForm && (

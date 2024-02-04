@@ -26,7 +26,11 @@ const MemberCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowModal}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowModal}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.member.profile_image} />
 					<Card.Body>
 						<Card.Title>
@@ -146,6 +150,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	const [fileError, setFileError] = useState(false);
 	const [uploadedFiles, setUploadedFiles] = useState([]);
 	const [resetDropzone, setResetDropzone] = useState(false);
+	const [loading, setLoading] = useState(false); // Add loading state
 
 	// Handle files change
 	const handleFilesChange = (files) => {
@@ -202,6 +207,145 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 			const token = sessionStorage.getItem("token");
 
 			try {
+				setLoading(true); // Set loading to true before making the request
+
+				// delete account if role is not main com anymore
+				if (member.role === "main com" && form.role !== "main com") {
+					console.log("delete account");
+					const userConfirmed = window.confirm(
+						`${form.admin_number} management account will be deleted. Are you sure you want to demote ${form.admin_number} from main com?`
+					);
+
+					if (userConfirmed) {
+						const response = await fetch(
+							`http://localhost:3050/account/${member.admin_number}`,
+							{
+								method: "DELETE",
+								headers: {
+									Authorization: token ? token : "",
+								},
+							}
+						);
+
+						const res = await response.json();
+						console.log(res);
+						if (response.ok) {
+							// Show success notification
+							toast.success(
+								`${form.admin_number} management account deleted successfully.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+						} else {
+							const res = await response.json();
+							// show unsuccessful notification
+							toast.error(
+								`Failed to delete ${form.admin_number} management account. Try again later.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+							console.log(res);
+							console.log(
+								`Failed to delete management account.
+							${res.error}, details: ${res.details}`
+							);
+						}
+					} else {
+						setLoading(false); // Set loading to false if user cancels
+						return;
+					}
+				}
+
+				// create account if role is main com
+				if (form.role === "main com") {
+					const userConfirmed = window.confirm(
+						`A management account will be created. Are you sure you want to promote ${form.admin_number} into a main com?`
+					);
+
+					if (userConfirmed) {
+						// generate a random password
+						const generateRandomPassword = () => {
+							const uppercaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+							const lowercaseLetters = "abcdefghijklmnopqrstuvwxyz";
+							const numbers = "0123456789";
+							const specialCharacters = "!@#$%^&*()_+{}[]:;<>,.?~\\-";
+
+							const getRandomChar = (characters) =>
+								characters[Math.floor(Math.random() * characters.length)];
+
+							const randomPassword =
+								getRandomChar(uppercaseLetters) +
+								getRandomChar(lowercaseLetters) +
+								getRandomChar(numbers) +
+								getRandomChar(specialCharacters) +
+								Array.from({ length: 4 }, () =>
+									getRandomChar(
+										uppercaseLetters +
+											lowercaseLetters +
+											numbers +
+											specialCharacters
+									)
+								).join("");
+
+							// Shuffle the password to ensure the order of required characters is random
+							const shuffledPassword = randomPassword
+								.split("")
+								.sort(() => Math.random() - 0.5)
+								.join("");
+
+							return shuffledPassword;
+						};
+
+						const randomPassword = generateRandomPassword();
+
+						const account = {
+							admin_number: form.admin_number || member.admin_number,
+							email: form.email || member.email,
+							password: randomPassword,
+							confirmPassword: randomPassword,
+						};
+
+						const response = await fetch(
+							`http://localhost:3050/account/register`,
+							{
+								method: "POST",
+								headers: {
+									Authorization: token ? token : "",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(account),
+							}
+						);
+						if (response.ok) {
+							// Show success notification
+							toast.success(
+								`${form.admin_number} management account created successfully.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+						} else {
+							const res = await response.json();
+							// show unsuccessful notification
+							toast.error(
+								`Failed to create ${form.admin_number} management account. Try again later.`,
+								{
+									position: toast.POSITION.TOP_RIGHT,
+								}
+							);
+							console.log(
+								`Failed to create management account.
+							${res.error}, details: ${res.details}`
+							);
+						}
+					} else {
+						setLoading(false); // Set loading to false if user cancels
+						return;
+					}
+				}
+
 				const response = await fetch(`http://localhost:3050/member/${id}`, {
 					method: "PATCH",
 					headers: {
@@ -264,6 +408,8 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 					position: toast.POSITION.TOP_RIGHT,
 				});
 				console.error("Error updating member:", error);
+			} finally {
+				setLoading(false); // Set loading to false after the request is complete
 			}
 		}
 	}
@@ -508,7 +654,13 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							Cancel
 						</Button>
 						<Button type="submit" variant="primary">
-							Update
+							{loading ? (
+								<>
+									<i className="fas fa-spinner fa-pulse"></i> Updating...
+								</>
+							) : (
+								"Update"
+							)}
 						</Button>
 					</Stack>
 				</Form>
@@ -517,7 +669,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 	);
 };
 
-const Members = (relaod) => {
+const Members = ({ relaod, count }) => {
 	const [members, setMembers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -606,9 +758,9 @@ const Members = (relaod) => {
 		}
 	}
 
-	// Map out the members
-	function membersList(updateTriggerSetter) {
-		return members.map((member) => {
+	// Map out the specified number of members
+	function membersList(updateTriggerSetter, numberOfMembers) {
+		return members.slice(0, numberOfMembers).map((member) => {
 			return (
 				<MemberCard
 					member={member}
@@ -636,7 +788,7 @@ const Members = (relaod) => {
 				) : members.length === 0 ? (
 					<p>There is currently no member</p>
 				) : (
-					<Row>{membersList(setUpdateTrigger)}</Row>
+					<Row>{membersList(setUpdateTrigger, count)}</Row>
 				)}
 			</Container>
 			<ToastContainer />

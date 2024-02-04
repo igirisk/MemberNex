@@ -68,7 +68,12 @@ const initDatabase = async () => {
 // call the function to initislie the database
 initDatabase();
 
-async function sendVerificationEmail(admin_number, email, otpauth_url) {
+async function sendVerificationEmail(
+	admin_number,
+	email,
+	password,
+	otpauth_url
+) {
 	return new Promise((resolve, reject) => {
 		let transporter = nodemailer.createTransport({
 			service: "gmail",
@@ -87,8 +92,10 @@ async function sendVerificationEmail(admin_number, email, otpauth_url) {
 				let mailOptions = {
 					from: "fwb2fa@gmail.com",
 					to: email,
-					subject: "2-Factor Verification for MemberNex",
-					html: `<p>To enhance the security of your ${admin_number} MemberNex account, we have enabled 2-Factor Authentication. Please follow the instructions below to set up 2FA:</p>
+					subject: "MemberNex account created successfully.",
+					html: `<p>${admin_number} MemberNex account created, here is your initial password: <b>${password}</b></p>
+					<p>Do change your password after login.</p>
+					<p>To enhance the security of your ${admin_number} MemberNex account, we have enabled 2-Factor Authentication. Please follow the instructions below to set up 2FA:</p>
                     <ol>
                         <li>Download and install a 2FA app on your mobile device (e.g., Google Authenticator).</li>
                         <li>Open the 2FA app and scan the QR code below.</li>
@@ -158,6 +165,7 @@ router.post("/register", async (req, res) => {
 			// formatting values
 			newAccount.admin_number = newAccount.admin_number.toUpperCase();
 			delete newAccount.confirmPassword;
+			const password = newAccount.password;
 
 			//number of times password hashing is applied to password
 			const saltRounds = 10;
@@ -175,6 +183,7 @@ router.post("/register", async (req, res) => {
 				await sendVerificationEmail(
 					newAccount.admin_number,
 					newAccount.email,
+					password,
 					secret2fa.otpauth_url
 				);
 
@@ -368,9 +377,9 @@ router.patch("/:id", async (req, res) => {
 });
 
 // reject account by id
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:admin_number", verifyToken, async (req, res) => {
 	try {
-		const query = { _id: new ObjectId(req.params.id) };
+		const query = { admin_number: req.params.admin_number };
 		const collection = await db.collection("accounts");
 		let result = await collection.deleteOne(query);
 
@@ -382,7 +391,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
 				.send(errorResponse("Failed to delete account", result));
 		}
 	} catch (e) {
-		console.error("Error deleting account by ID:", e);
+		console.error("Error deleting account by admin number:", e);
 		return res.status(500).send(errorResponse("Internal Server Error", e));
 	}
 });

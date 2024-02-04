@@ -22,7 +22,11 @@ const JoinRequestCard = (props) => {
 	return (
 		<>
 			<Col>
-				<Card style={{ width: "11rem" }} onClick={handleShowDetails}>
+				<Card
+					style={{ width: "11rem" }}
+					onClick={handleShowDetails}
+					className="mb-3"
+				>
 					<Card.Img variant="top" src={props.joinRequest.profile_image} />
 					<Card.Body>
 						<Card.Title>
@@ -120,7 +124,7 @@ const JoinRequestDetails = ({
 	);
 };
 
-const JoinRequests = ({ setReload }) => {
+const JoinRequests = ({ setReload, count }) => {
 	const [joinRequests, setJoinRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -300,9 +304,9 @@ const JoinRequests = ({ setReload }) => {
 		}
 	}
 
-	// Map out the joinRequests
-	function joinRequestsList() {
-		return joinRequests.map((joinRequest) => {
+	// Map out the specified number of  joinRequests
+	function joinRequestsList(numberOfJoinRequests) {
+		return joinRequests.slice(0, numberOfJoinRequests).map((joinRequest) => {
 			return (
 				<JoinRequestCard
 					joinRequest={joinRequest}
@@ -331,7 +335,7 @@ const JoinRequests = ({ setReload }) => {
 				) : joinRequests.length === 0 ? (
 					<p>There is currently no join request</p>
 				) : (
-					<Row>{joinRequestsList()}</Row>
+					<Row>{joinRequestsList(count)}</Row>
 				)}
 			</Container>
 			<ToastContainer />
