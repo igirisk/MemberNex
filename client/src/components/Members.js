@@ -254,7 +254,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 							position: toast.POSITION.TOP_RIGHT,
 						});
 						console.log(
-							`Failed to submit join request.
+							`Failed to update member.
 						${res.error}, details: ${res.details}`
 						);
 					}
