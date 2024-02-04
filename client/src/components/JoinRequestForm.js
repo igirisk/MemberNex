@@ -82,8 +82,6 @@ const JoinRequestForm = () => {
 				});
 
 				if (response.ok) {
-					setFileError(false);
-					setUploadedFiles([]);
 					// Reset the drop zone
 					setResetDropzone(true);
 					// reset form
@@ -97,6 +95,8 @@ const JoinRequestForm = () => {
 						activeness: "",
 						profile_image: "",
 					});
+					setFileError(false);
+					setUploadedFiles([]);
 
 					// Show success notification
 					toast.success(`Join request sent successfully`, {
