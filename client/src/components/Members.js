@@ -213,7 +213,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 				if (member.role === "main com" && form.role !== "main com") {
 					console.log("delete account");
 					const userConfirmed = window.confirm(
-						`${form.admin_number} management account will be deleted. Are you sure you want to demote ${form.admin_number} from main com?`
+						`${form.admin_number} management account will be deleted. Are you sure you want to demote ${member.admin_number} from main com?`
 					);
 
 					if (userConfirmed) {
@@ -261,7 +261,7 @@ const MemberEdit = ({ member, closeEdit, sendReload }) => {
 				// create account if role is main com
 				if (form.role === "main com") {
 					const userConfirmed = window.confirm(
-						`A management account will be created. Are you sure you want to promote ${form.admin_number} into a main com?`
+						`A management account will be created. Are you sure you want to promote ${member.admin_number} into a main com?`
 					);
 
 					if (userConfirmed) {

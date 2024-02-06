@@ -35,7 +35,7 @@ const EventCard = (props) => {
 					<Card.Body>
 						<Card.Title>{props.event.name}</Card.Title>
 						<Card.Text className="text-muted">
-							{props.event.date}
+							<p>{props.event.date}</p>
 							{props.event.start_time + " - " + props.event.end_time}
 						</Card.Text>
 					</Card.Body>
